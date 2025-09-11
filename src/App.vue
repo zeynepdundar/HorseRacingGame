@@ -1,15 +1,11 @@
 <script setup>
-import TheHeader from './components/layouts/TheHeader.vue'
+import Layout from './components/layout/index.vue'
+import Main from './components/Main.vue';
+
 </script>
 
 <template>
-  <div class="app-container">
-    <TheHeader />
-  </div>
+  <Layout>
+    <Main />
+  </Layout>
 </template>
-
-<style scoped>
-.app-container {
-  padding-top: 5rem;
-}
-</style>
