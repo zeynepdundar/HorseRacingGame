@@ -1,7 +1,7 @@
 <template>
   <header>
     <img :src="logo" alt="Horse racing logo" />
-    <h1>Horse Racing Game</h1>
+    <h1>Horse Racing</h1>
   </header>
 </template>
 
@@ -17,12 +17,14 @@ header {
 }
 
 header h1 {
-  color: #d81c1c;
+  color: #ff6b35;
   margin: 0;
-  font-size: 1.8rem;
-  font-weight: 800;
-  font-family: 'Comic Sans MS', cursive, sans-serif;
+  font-size: 2.2rem;
+  font-weight: 900;
+  font-family: 'Arial Black', 'Helvetica', sans-serif;
   text-transform: uppercase;
+  letter-spacing: 0.15em;
+  background-size: 200% 200%;
 }
 
 header img {
