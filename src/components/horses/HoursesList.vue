@@ -22,25 +22,34 @@
               <span v-else class="no-color">No Color</span>
             </td>
             <td>{{ horse.condition }}</td>
-
           </tr>
         </tbody>
       </table>
+    </div>
+    <div class="button-container">
+      <Button @click="handleButtonClick">GENERATE</Button>
     </div>
   </div>
 </template>
 
 <script>
 import horsesData from '../../mock/horses.json'
+import Button from '../ui/Button.vue'
 
 export default {
   name: 'HoursesList',
+  components: {
+    Button
+  },
   data() {
     return {
       horses: horsesData
     }
   },
   methods: {
+    handleButtonClick() {
+
+    }
   }
 }
 </script>
@@ -48,20 +57,21 @@ export default {
 <style scoped>
 .horses-list {
   padding: 20px;
-  max-width: 600px; /* Reduced from 1000px */
-  margin: 0; /* Changed from 0 auto to align left */
+  margin: 0 auto;
 }
 
 .horses-list h2 {
   color: #333;
-  margin-bottom: 20px;
-  text-align: left; /* Changed from center to left */
+  margin-bottom: 15px;
+  text-align: center;
 }
 
 .table-container {
   overflow-x: auto;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  margin: 0 auto;
 }
 
 .horses-table {
@@ -74,15 +84,17 @@ export default {
   background: #f8f9fa;
   color: #495057;
   font-weight: 600;
-  padding: 12px 16px;
+  padding: 8px 12px;
   text-align: left;
   border-bottom: 2px solid #dee2e6;
+  font-size: 14px;
 }
 
 .horses-table td {
-  padding: 12px 16px;
+  padding: 6px 12px;
   border-bottom: 1px solid #dee2e6;
   vertical-align: middle;
+  font-size: 14px;
 }
 
 .horse-row:hover {
@@ -91,17 +103,18 @@ export default {
 
 .color-indicator {
   display: inline-block;
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   border: 2px solid #ddd;
-  margin-right: 8px;
+  margin-right: 6px;
   vertical-align: middle;
 }
 
 .no-color {
   color: #6c757d;
   font-style: italic;
+  font-size: 13px;
 }
 
 .btn-primary {
@@ -121,6 +134,11 @@ export default {
 
 .btn-primary:active {
   background: #004085;
+}
+
+.button-container {
+  text-align: center;
+  margin-top: 20px;
 }
 
 @media (max-width: 768px) {

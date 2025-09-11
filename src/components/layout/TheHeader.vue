@@ -13,7 +13,7 @@ import logo from '../../assets/logo.png'
 <style scoped>
 header {
   text-align: center;
-  margin: 3rem auto;
+  margin: 2rem auto;
 }
 
 header h1 {

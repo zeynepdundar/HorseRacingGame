@@ -17,9 +17,6 @@ import HoursesList from './horses/HoursesList.vue';
 
 <style scoped>
 .main-container {
-  display: grid;
-  grid-template-columns: 1fr 2fr; /* Horse list takes 1/3, race track takes 2/3 */
-  gap: 20px;
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
@@ -30,7 +27,7 @@ import HoursesList from './horses/HoursesList.vue';
   padding: 20px;
   background-color: #f9f9f9;
   border-radius: 8px;
-  justify-self: start; /* Align to left */
+  margin-bottom: 20px;
 }
 
 .race-track-section {
@@ -43,9 +40,11 @@ import HoursesList from './horses/HoursesList.vue';
 /* Responsive design for smaller screens */
 @media (max-width: 768px) {
   .main-container {
-    grid-template-columns: 1fr; /* Stack vertically on mobile */
-    gap: 15px;
     padding: 15px;
+  }
+  
+  .horse-list-section {
+    margin-bottom: 15px;
   }
 }
 </style>
