@@ -1,0 +1,9 @@
+[
+    { "id": 1, "name": "Thunderbolt", "color": "red" },
+    { "id": 2, "name": "Stormy", "color": "blue" },
+    { "id": 3, "name": "Lightning", "color": null },
+    { "id": 4, "name": "Shadow", "color": "green" },
+    { "id": 5, "name": "Blaze", "color": null },
+    { "id": 20, "name": "Comet", "color": null }
+  
+]
