@@ -21,6 +21,17 @@
 
       <Button @click="reset">Back</Button>
     </div>
+
+    <!-- Race Track - Yeni div ile sarmalanmış -->
+    <div class="race-track-wrapper" v-if="raceStarted">
+      <div class="race-track-container">
+        <RaceTrack 
+          :rounds="rounds" 
+          :current-round="currentRound"
+          :race-started="raceStarted"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -31,15 +42,24 @@ import RaceSchedule from './races/RaceSchedule.vue'
 import Button from './ui/Button.vue'
 import type { Horse } from '../types/horse'
 import HoursesList from './horses/HoursesList.vue'
+import RaceTrack from './races/RaceTrack.vue'
+
+
 
 // store
 const store = useStore()
 
 // derived state from store
 const raceScheduled = computed(() => store.getters['race/raceScheduled'])
-const round = computed(() => store.getters['race/currentRound'])
+const currentRound = computed(() => store.getters['race/currentRound'])
 const selectedHorses = computed<Horse[]>(() => store.getters['race/selectedHorses'])
 const rounds = computed(() => store.getters['race/rounds'])
+const raceStarted = computed(() => store.getters['race/raceStarted'])
+
+const currentRoundDistance = computed(() => {
+  const roundIndex = currentRound.value - 1 // assuming currentRound starts from 1
+  return rounds.value?.[roundIndex]?.distance ?? 0
+})
 
 
 // horses list from horses module
@@ -61,7 +81,7 @@ function reset() {
   store.dispatch('race/resetRace')
 }
 function startRace() {
-  store.dispatch('race/resetRace')
+  store.dispatch('race/startRace')
 }
 </script>
 

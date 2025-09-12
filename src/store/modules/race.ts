@@ -7,6 +7,7 @@ const state: Race = {
   rounds: [],
   currentRound: 0,
   raceScheduled: false,
+  raceStarted: false
 };
 
 export default {
@@ -15,6 +16,7 @@ export default {
   getters: {
     selectedHorses: (state: Race) => state.selectedHorses || [],
     raceScheduled: (state: Race) => !!state.raceScheduled,
+    raceStarted: (state: Race) => !!state.raceStarted,
     currentRound: (state: Race) => state.currentRound,
     rounds: (state: Race) => state.rounds,
   },
@@ -33,13 +35,10 @@ export default {
       state.currentRound = roundNumber;
       state.raceScheduled = roundNumber > 0;
     },
-    resetRace(state: Race) {
-      state.currentRound = 0;
-      state.rounds = [];
-      state.selectedHorses = [];
-      state.raceScheduled = false;
+    resetRace({ commit }) {
+      //commit("resetRace");
     },
-    // start
+
   },
   actions: {
     generateRaceProgram({ commit, rootState }) {
@@ -64,6 +63,19 @@ export default {
     },
     resetRace({ commit }) {
       commit("resetRace");
+    },
+    startRace({ state, commit }) {
+      if (!state.rounds.length) return;
+      state.raceStarted = true;
+
+      const next = state.currentRound + 1;
+      if (next <= state.rounds.length) {
+        commit("setCurrentRound", next);
+        const horses = state.rounds[next - 1]?.selectedHorses || [];
+        commit("setSelectedHorse", horses);
+      } else {
+        //commit("resetRace");
+      }
     },
   },
 };
