@@ -1,20 +1,11 @@
 <template>
-  <div class="horses-list">
+  <div v-if="!raceScheduled" class="horses-list">
     <h2>Horses List</h2>
     <div class="table-container">
-      <Table
-        :columns="columns"
-        :rows="horses"
-        row-key="id"
-        empty-text="Kayıt bulunamadı."
-      >
+      <Table :columns="columns" :rows="horses" row-key="id" empty-text="Kayıt bulunamadı.">
         <template #cell="{ col, row, value }">
           <template v-if="col.key === 'color'">
-            <span 
-              v-if="row.color" 
-              class="color-indicator" 
-              :style="{ backgroundColor: row.color }"
-            ></span>
+            <span v-if="row.color" class="color-indicator" :style="{ backgroundColor: row.color }"></span>
             <span v-else class="no-color">No Color</span>
           </template>
           <template v-else>
@@ -27,6 +18,27 @@
       <Button @click="handleButtonClick">GENERATE</Button>
     </div>
   </div>
+
+  <div v-else class="raceScheduled-container">
+    <h2>Selected Horses (Round {{ round }})</h2>
+    <div class="raceScheduled-content">
+      <Table :columns="columns" :rows="selectedHorses" row-key="id" empty-text="Seçilmiş at bulunamadı.">
+        <template #cell="{ col, row, value }">
+          <template v-if="col.key === 'color'">
+            <span v-if="row.color" class="color-indicator" :style="{ backgroundColor: row.color }"></span>
+            <span v-else class="no-color">No Color</span>
+          </template>
+          <template v-else>
+            {{ value }}
+          </template>
+        </template>
+      </Table>
+
+      <div style="text-align:center; margin-top:12px;">
+        <Button @click="reset">Back</Button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -35,49 +47,52 @@ import Button from '../ui/Button.vue'
 import Table from '../ui/Table.vue'
 
 export default {
-  name: 'HoursesList',
+  name: 'HorsesList',
   components: {
     Button,
     Table
   },
   data() {
     return {
-      horses: horsesData,
-      columns: [
+      raceScheduled: false,
+      round: 0,
+      // set condition to horses randomly
+      horses: horsesData.map(h => ({
+        ...h,
+        condition: Math.floor(Math.random() * 100) + 1
+      })), columns: [
         { key: 'name', label: 'Horse' },
         { key: 'color', label: 'Color', width: 120 },
         { key: 'condition', label: 'Condition' }
-      ]
+      ],
+      selectedHorses: []
     }
   },
   methods: {
     handleButtonClick() {
+      this.generateProgram()
+      this.raceScheduled = true
+    },
 
+    generateProgram() {
+      this.round++
+      this.selectedHorses = this.select10Horses()
+    },
+
+    select10Horses() {
+      const shuffled = [...this.horses].sort(() => 0.5 - Math.random())
+      return shuffled.slice(0, 10)
+    },
+
+    reset() {
+      this.raceScheduled = false
+      this.selectedHorses = []
     }
   }
 }
 </script>
 
 <style scoped>
-.horses-list {
-  padding: 20px;
-  margin: 0 auto;
-}
-
-.horses-list h2 {
-  color: #333;
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-.table-container {
-  overflow-x: auto;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  max-width: 500px;
-  margin: 0 auto;
-}
-
 .color-indicator {
   display: inline-block;
   width: 16px;
@@ -92,16 +107,5 @@ export default {
   color: #6c757d;
   font-style: italic;
   font-size: 13px;
-}
-
-.btn-primary {
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-
 }
 </style>
