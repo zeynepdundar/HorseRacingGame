@@ -1,6 +1,6 @@
 <template>
   <div class="layout">
-    <TheHeader />
+    <the-header :title="title" />
     <main class="main-content" role="main">
       <div class="container">
         <slot />
@@ -11,7 +11,15 @@
 
 <script setup>
 import TheHeader from './TheHeader.vue'
+
+defineProps({
+  title: {
+    type: String,
+    required: true
+  }
+})
 </script>
+
 
 <style scoped>
 .layout {

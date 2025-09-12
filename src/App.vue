@@ -5,7 +5,7 @@ import Main from './components/Main.vue';
 </script>
 
 <template>
-  <Layout>
+  <Layout title="Horse Racing">
     <Main />
   </Layout>
 </template>

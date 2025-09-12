@@ -1,13 +1,19 @@
 <template>
   <header>
-    <img :src="logo" alt="Horse racing logo" />
-    <h1>Horse Racing</h1>
+    <img :src="logo" alt="Logo" />
+    <h1>{{ title }}</h1>
   </header>
 </template>
 
 <script setup>
 import logo from '../../assets/logo.png'
 
+defineProps({
+  title: {
+    type: String,
+    required: true
+  }
+})
 </script>
 
 <style scoped>
@@ -32,7 +38,6 @@ header img {
   width: auto;
 }
 
-/* Responsive design */
 @media (max-width: 768px) {
   header {
     padding: 0 1rem;
