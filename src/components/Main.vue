@@ -24,17 +24,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed } from 'vue'
+import { useStore } from 'vuex'
 import RaceSchedule from './races/RaceSchedule.vue'
 import Button from './ui/Button.vue'
-import { HORSES_DATA } from '../store/constants/horses'
 import type { Horse } from '../types/horse'
 import HoursesList from './horses/HoursesList.vue'
 
-// reactive state
-const raceScheduled = ref(false)
-const round = ref(0)
-const selectedHorses = ref<Horse[]>([])
+// store
+const store = useStore()
+
+// derived state from store
+const raceScheduled = computed(() => store.getters['race/raceScheduled'])
+const round = computed(() => store.getters['race/currentRound'])
+const selectedHorses = computed<Horse[]>(() => store.getters['race/selectedHorses'])
+
+// horses list from horses module
+const horses = computed<Horse[]>(() => store.getters['horses/allHorses'])
 
 // table columns
 const columns = [
@@ -43,33 +49,15 @@ const columns = [
   { key: 'condition', label: 'Condition' }
 ]
 
-// horses with random condition
-const horses = ref<Horse[]>(
-  HORSES_DATA.map(h => ({
-    ...h,
-    condition: Math.floor(Math.random() * 100) + 1
-  }))
-)
-
+// actions
 function handleGenerate() {
-  round.value++
-  selectedHorses.value = select10Horses()
-  raceScheduled.value = true
+  store.dispatch('race/generateRound')
 }
-
-function select10Horses(): Horse[] {
-  const shuffled = [...horses.value].sort(() => 0.5 - Math.random())
-  return shuffled.slice(0, 10)
-}
-
 
 function reset() {
-  raceScheduled.value = false
-  selectedHorses.value = []
-  round.value = 0
+  store.dispatch('race/resetRace')
 }
 </script>
-
 
 <style scoped>
 .main-container {
