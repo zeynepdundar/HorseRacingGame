@@ -2,10 +2,7 @@
   <div class="main-container">
     <!-- Horses List -->
     <div class="horse-list-section" v-if="!raceScheduled">
-      <HoursesList 
-        :horses="horses" 
-        :columns="columns" 
-      />
+      <HoursesList :horses="horses" :columns="columns" />
       <div class="button-container">
         <Button @click="handleGenerate">GENERATE</Button>
       </div>
@@ -13,12 +10,16 @@
 
     <!-- Race Schedule -->
     <div class="race-track-section" v-else>
-      <RaceSchedule 
-        :selected-horses="selectedHorses" 
-        :round="round" 
-        :columns="columns" 
-        @back="reset" 
-      />
+      <div v-for="r in rounds" :key="r.id" style="margin-bottom: 16px;">
+        <RaceSchedule :selected-horses="r.selectedHorses || []" :round="r.id" :meters="r.distance" :columns="columns"
+          @back="reset" />
+        <div style="text-align:center; margin-top:12px;">
+
+        </div>
+      </div>
+      <Button @click="startRace">START</Button>
+
+      <Button @click="reset">Back</Button>
     </div>
   </div>
 </template>
@@ -38,6 +39,8 @@ const store = useStore()
 const raceScheduled = computed(() => store.getters['race/raceScheduled'])
 const round = computed(() => store.getters['race/currentRound'])
 const selectedHorses = computed<Horse[]>(() => store.getters['race/selectedHorses'])
+const rounds = computed(() => store.getters['race/rounds'])
+
 
 // horses list from horses module
 const horses = computed<Horse[]>(() => store.getters['horses/allHorses'])
@@ -51,10 +54,13 @@ const columns = [
 
 // actions
 function handleGenerate() {
-  store.dispatch('race/generateRound')
+  store.dispatch('race/generateRaceProgram')
 }
 
 function reset() {
+  store.dispatch('race/resetRace')
+}
+function startRace() {
   store.dispatch('race/resetRace')
 }
 </script>
