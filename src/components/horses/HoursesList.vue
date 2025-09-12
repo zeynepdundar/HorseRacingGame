@@ -20,24 +20,7 @@
   </div>
 
   <div v-else class="raceScheduled-container">
-    <h2>Selected Horses (Round {{ round }})</h2>
-    <div class="raceScheduled-content">
-      <Table :columns="columns" :rows="selectedHorses" row-key="id" empty-text="Seçilmiş at bulunamadı.">
-        <template #cell="{ col, row, value }">
-          <template v-if="col.key === 'color'">
-            <span v-if="row.color" class="color-indicator" :style="{ backgroundColor: row.color }"></span>
-            <span v-else class="no-color">No Color</span>
-          </template>
-          <template v-else>
-            {{ value }}
-          </template>
-        </template>
-      </Table>
-
-      <div style="text-align:center; margin-top:12px;">
-        <Button @click="reset">Back</Button>
-      </div>
-    </div>
+    <RaceSchedule :selectedHorses="selectedHorses" :round="round" :columns="columns" @back="reset" />
   </div>
 </template>
 
@@ -45,12 +28,14 @@
 import horsesData from '../../mock/horses.json'
 import Button from '../ui/Button.vue'
 import Table from '../ui/Table.vue'
+import RaceSchedule from '../races/RaceSchedule.vue'
 
 export default {
   name: 'HorsesList',
   components: {
     Button,
-    Table
+    Table,
+    RaceSchedule
   },
   data() {
     return {
@@ -90,6 +75,9 @@ export default {
     }
   }
 }
+
+
+
 </script>
 
 <style scoped>
