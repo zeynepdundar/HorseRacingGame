@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Horse } from '../../types/horse'
-import horsesData from '../../mock/horses.json'
+import { HORSES_DATA } from '../../store/constants/horses'
 
-const horses = ref<Horse[]>(horsesData)
+const horses = ref<Horse[]>(HORSES_DATA)
 
 // Randomly assign colorCondition if missing
 const colors = ['red', 'blue', 'green', 'yellow', 'purple']

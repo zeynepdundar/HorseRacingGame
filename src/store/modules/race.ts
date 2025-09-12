@@ -1,14 +1,10 @@
 import type { Horse } from '../../types/horse'
+import { Race } from '../../types/race'
 
-export interface RaceState {
-  round: number
-  selectedHorses: Horse[]
-  raceScheduled: boolean
-}
 
-const state: RaceState = {
-  round: 0,
-  selectedHorses: [],
+const state: Race = {
+  rounds: [],
+  currentRound: 0,
   raceScheduled: false
 }
 
@@ -16,14 +12,14 @@ export default {
   namespaced: true,
   state,
   mutations: {
-    nextRound(state: RaceState, horses: Horse[]) {
-      state.round++
-      state.selectedHorses = horses
+    nextRound(state: Race, horses: Horse[]) {
+      state.currentRound++
+     // state.selectedHorses = horses
       state.raceScheduled = true
     },
-    reset(state: RaceState) {
-      state.round = 0
-      state.selectedHorses = []
+    reset(state: Race) {
+      state.currentRound = 0
+      //state.selectedHorses = []
       state.raceScheduled = false
     }
   }

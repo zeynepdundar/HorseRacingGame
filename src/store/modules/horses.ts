@@ -1,12 +1,12 @@
 import type { Horse } from '../../types/horse'
-import horsesData from '../../mock/horses.json'
+import { HORSES_DATA } from '../constants/horses'
 
 export interface HorsesState {
   horses: Horse[]
 }
 
 const state: HorsesState = {
-  horses: horsesData.map(h => ({
+  horses: HORSES_DATA.map(h => ({
     ...h,
     condition: Math.floor(Math.random() * 100) + 1
   }))

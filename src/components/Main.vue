@@ -27,7 +27,7 @@
 import { ref } from 'vue'
 import RaceSchedule from './races/RaceSchedule.vue'
 import Button from './ui/Button.vue'
-import horsesData from '../mock/horses.json'
+import { HORSES_DATA } from '../store/constants/horses'
 import type { Horse } from '../types/horse'
 import HoursesList from './horses/HoursesList.vue'
 
@@ -45,7 +45,7 @@ const columns = [
 
 // horses with random condition
 const horses = ref<Horse[]>(
-  horsesData.map(h => ({
+  HORSES_DATA.map(h => ({
     ...h,
     condition: Math.floor(Math.random() * 100) + 1
   }))
