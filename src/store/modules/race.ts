@@ -25,7 +25,7 @@ export default {
       state.rounds = rounds;
     },
     setSelectedHorse(state: Race, horses: Horse[]) {
-      //state.rounds[currentRound].selectedHorses = horses;
+     //state.selectedHorses = horses;
     },
     setRound(state: Race) {
       state.currentRound++;
@@ -66,15 +66,27 @@ export default {
     },
     startRace({ state, commit }) {
       if (!state.rounds.length) return;
+      
+      // Start the race from round 1
       state.raceStarted = true;
-
+      commit("setCurrentRound", 1);
+      
+      // Get horses for round 1
+      const horses = state.rounds[0]?.selectedHorses || [];
+      commit("setSelectedHorse", horses);
+    },
+    
+    nextRound({ state, commit }) {
+      if (!state.rounds.length || !state.raceStarted) return;
+      
       const next = state.currentRound + 1;
       if (next <= state.rounds.length) {
         commit("setCurrentRound", next);
         const horses = state.rounds[next - 1]?.selectedHorses || [];
         commit("setSelectedHorse", horses);
       } else {
-        //commit("resetRace");
+        // Race completed
+        state.raceStarted = false;
       }
     },
   },

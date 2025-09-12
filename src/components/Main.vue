@@ -22,14 +22,9 @@
       <Button @click="reset">Back</Button>
     </div>
 
-    <!-- Race Track - Yeni div ile sarmalanmış -->
     <div class="race-track-wrapper" v-if="raceStarted">
       <div class="race-track-container">
-        <RaceTrack 
-          :rounds="rounds" 
-          :current-round="currentRound"
-          :race-started="raceStarted"
-        />
+        <RaceTrack :rounds="rounds" :current-round="currentRound" :race-started="raceStarted" />
       </div>
     </div>
   </div>
@@ -39,31 +34,20 @@
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 import RaceSchedule from './races/RaceSchedule.vue'
+import RaceTrack from './races/RaceTrack.vue'
+import HoursesList from './horses/HoursesList.vue'
 import Button from './ui/Button.vue'
 import type { Horse } from '../types/horse'
-import HoursesList from './horses/HoursesList.vue'
-import RaceTrack from './races/RaceTrack.vue'
 
 
-
-// store
 const store = useStore()
 
-// derived state from store
 const raceScheduled = computed(() => store.getters['race/raceScheduled'])
 const currentRound = computed(() => store.getters['race/currentRound'])
-const selectedHorses = computed<Horse[]>(() => store.getters['race/selectedHorses'])
 const rounds = computed(() => store.getters['race/rounds'])
 const raceStarted = computed(() => store.getters['race/raceStarted'])
-
-const currentRoundDistance = computed(() => {
-  const roundIndex = currentRound.value - 1 // assuming currentRound starts from 1
-  return rounds.value?.[roundIndex]?.distance ?? 0
-})
-
-
-// horses list from horses module
 const horses = computed<Horse[]>(() => store.getters['horses/allHorses'])
+
 
 // table columns
 const columns = [
@@ -76,7 +60,6 @@ const columns = [
 function handleGenerate() {
   store.dispatch('race/generateRaceProgram')
 }
-
 function reset() {
   store.dispatch('race/resetRace')
 }
@@ -107,7 +90,6 @@ function startRace() {
   border-radius: 8px;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .main-container {
     padding: 15px;
