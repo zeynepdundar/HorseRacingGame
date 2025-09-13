@@ -10,25 +10,35 @@ defineEmits(['click'])
 
 <style scoped>
 button {
-  background-color: #646cff;
-  color: white;
+  padding: 14px 32px;
+  font-size: 20px;
+  font-weight: bold;
   border: none;
-  border-radius: 8px;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
+  border-radius: 10px;
+  background: #ffd60a; /* bright arcade yellow */
+  color: #222;
   cursor: pointer;
-  transition: background-color 0.25s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px #b89b00;
+  transition: all 0.15s ease;
 }
 
 button:hover {
-  background-color: #535bf2;
+  background: #ffcc00;
+  transform: translateY(-2px);
+  box-shadow: 0 6px #a07f00;
 }
 
-button:focus,
-button:focus-visible {
-  outline: 2px solid #646cff;
-  outline-offset: 2px;
+button:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px #7a6000;
 }
-</style> 
+
+button:disabled {
+  background: #aaa;
+  color: #666;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+</style>
