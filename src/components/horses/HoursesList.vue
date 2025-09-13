@@ -8,46 +8,39 @@
     </div>
   </div>
 
-    <Table 
-      :rows="horses" 
-      :columns="columns"
-      :maxHeight="'400px'"
-    >
-      <!-- Special cell for horse icon and name -->
-      <template #cell="{ row, col }">
-        <div v-if="col.key === 'horse'" class="horse-icon-cell">
-          <div class="horse-avatar" :style="{ backgroundColor: row.color || '#4CAF50' }">
-            🐎
+  <Table :rows="horses" :columns="columns" :maxHeight="'400px'">
+    <!-- Special cell for horse icon and name -->
+    <template #cell="{ row, col }">
+      <div v-if="col.key === 'horse'" class="horse-icon-cell">
+        <div class="horse-avatar" :style="{ backgroundColor: row.color || '#4CAF50' }">
+          🐎
+        </div>
+        <span class="horse-name">{{ row.name }}</span>
+      </div>
+
+      <!-- Color column -->
+      <div v-else-if="col.key === 'color'" class="color-cell">
+        <div class="color-dot" :style="{ backgroundColor: row.color || '#ccc' }"></div>
+        <span class="color-name">{{ row.color || 'Unknown' }}</span>
+      </div>
+
+      <!-- Condition column with percentage next to progress bar -->
+      <div v-else-if="col.key === 'condition'" class="condition-cell">
+        <div class="condition-container">
+          <div class="condition-progress">
+            <div class="condition-fill" :style="{
+              width: `${row.condition || 0}%`,
+              backgroundColor: getConditionColor(row.condition || 0)
+            }"></div>
           </div>
-          <span class="horse-name">{{ row.name }}</span>
+          <span class="condition-percentage">{{ row.condition || 0 }}%</span>
         </div>
-        
-        <!-- Color column -->
-        <div v-else-if="col.key === 'color'" class="color-cell">
-          <div class="color-dot" :style="{ backgroundColor: row.color || '#ccc' }"></div>
-          <span class="color-name">{{ row.color || 'Unknown' }}</span>
-        </div>
-        
-        <!-- Condition column with percentage next to progress bar -->
-        <div v-else-if="col.key === 'condition'" class="condition-cell">
-          <div class="condition-container">
-            <div class="condition-progress">
-              <div 
-                class="condition-fill" 
-                :style="{
-                  width: `${row.condition || 0}%`,
-                  backgroundColor: getConditionColor(row.condition || 0)
-                }"
-              ></div>
-            </div>
-            <span class="condition-percentage">{{ row.condition || 0 }}%</span>
-          </div>
-        </div>
-        
-        <!-- Default cell content for other columns -->
-        <span v-else>{{ row[col.key] }}</span>
-      </template>
-    </Table>
+      </div>
+
+      <!-- Default cell content for other columns -->
+      <span v-else>{{ row[col.key] }}</span>
+    </template>
+  </Table>
 </template>
 
 <script>
@@ -73,7 +66,7 @@ export default {
       if (condition >= 40) return '#FFC107' // Yellow
       return '#F44336' // Red
     }
-    
+
     return {
       getConditionColor,
     }
@@ -172,15 +165,16 @@ export default {
   text-overflow: ellipsis;
 }
 
-/* Condition cell with percentage next to progress bar */
 .condition-cell {
   padding: 2px 0;
   min-width: 120px;
+  height: 20px;
+  font-size: 0.8rem;
 }
 
 .condition-container {
-  display: flex;
-  align-items: center;
+
+  font-size: 0.8rem;
   gap: 6px;
 }
 
@@ -199,6 +193,7 @@ export default {
   border-radius: 8px;
   transition: width 0.6s ease;
   position: relative;
+  min-width: 25px;
 }
 
 .condition-fill::after {
@@ -212,18 +207,27 @@ export default {
   animation: progressShimmer 2s infinite;
 }
 
-@keyframes progressShimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
+.condition-cell {
+  @keyframes progressShimmer {
+    0% {
+      transform: translateX(-100%);
+    }
 
-.condition-percentage {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #2c3e50;
-  white-space: nowrap;
-  min-width: 28px;
-  text-align: right;
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  min-width: 100px;
+
+  .condition-percentage {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #2c3e50;
+    white-space: nowrap;
+    min-width: 28px;
+    text-align: right;
+  }
 }
 
 /* Responsive design */
@@ -231,25 +235,25 @@ export default {
   .horse-icon-cell {
     gap: 6px;
   }
-  
+
   .horse-avatar {
     width: 20px;
     height: 20px;
     font-size: 0.8rem;
   }
-  
+
   .horse-name {
     font-size: 0.8rem;
   }
-  
+
   .condition-cell {
     min-width: 100px;
   }
-  
+
   .condition-progress {
     height: 14px;
   }
-  
+
   .condition-percentage {
     font-size: 0.7rem;
     min-width: 25px;

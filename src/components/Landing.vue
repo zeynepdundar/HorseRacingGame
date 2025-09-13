@@ -14,7 +14,7 @@ const emit = defineEmits(["start"])
           <p class="subtitle">Experience the thrill of the track!</p>
         </div>
         <div class="game-actions">
-          <Button @click="emit('start')" variant="landing">Play</Button>
+          <Button @click="emit('start')">Play</Button>
         </div>
       </div>
     </div>
@@ -43,12 +43,10 @@ const emit = defineEmits(["start"])
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    45deg,
-    rgba(0, 0, 0, 0.3) 0%,
-    rgba(0, 0, 0, 0.1) 50%,
-    rgba(0, 0, 0, 0.3) 100%
-  );
+  background: linear-gradient(45deg,
+      rgba(0, 0, 0, 0.3) 0%,
+      rgba(0, 0, 0, 0.1) 50%,
+      rgba(0, 0, 0, 0.3) 100%);
   z-index: 1;
 }
 
@@ -86,7 +84,7 @@ h1 {
   font-size: clamp(3rem, 8vw, 6rem);
   margin: 0;
   color: #ffd700;
-  text-shadow: 
+  text-shadow:
     3px 3px 0px #ff6b35,
     6px 6px 0px rgba(0, 0, 0, 0.3),
     0 0 20px rgba(255, 215, 0, 0.5);
@@ -112,20 +110,17 @@ h1 {
   align-items: center;
 }
 
-.play-button {
-  transform: scale(1.1);
-  animation: buttonPulse 2s ease-in-out infinite;
-}
 
 @keyframes titleGlow {
   from {
-    text-shadow: 
+    text-shadow:
       3px 3px 0px #ff6b35,
       6px 6px 0px rgba(0, 0, 0, 0.3),
       0 0 20px rgba(255, 215, 0, 0.5);
   }
+
   to {
-    text-shadow: 
+    text-shadow:
       3px 3px 0px #ff6b35,
       6px 6px 0px rgba(0, 0, 0, 0.3),
       0 0 30px rgba(255, 215, 0, 0.8),
@@ -134,9 +129,12 @@ h1 {
 }
 
 @keyframes buttonPulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1.1);
   }
+
   50% {
     transform: scale(1.15);
   }
@@ -148,11 +146,11 @@ h1 {
     gap: 2rem;
     padding: 0 1rem;
   }
-  
+
   h1 {
     letter-spacing: 2px;
   }
-  
+
   .subtitle {
     font-size: 1.1rem;
   }
@@ -162,14 +160,10 @@ h1 {
   .game-content {
     gap: 1.5rem;
   }
-  
+
   h1 {
     letter-spacing: 1px;
   }
-  
-  .play-button {
-    transform: scale(1);
-    animation: none;
-  }
+
 }
 </style>

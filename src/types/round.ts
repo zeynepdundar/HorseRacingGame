@@ -4,4 +4,5 @@ export interface Round {
   id: number;
   selectedHorses?: Horse[];
   distance: number;
+  isCompleted?: boolean;
 }

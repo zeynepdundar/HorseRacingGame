@@ -48,7 +48,7 @@ const updateRaceProgress = () => {
   raceTime.value += 0.1
   const progress = Math.min((raceTime.value / raceDuration.value) * 100, 100)
   raceProgress.value = progress
-  console.log('Progress:', progress, 'Left:', `${progress}%`) // Debug log
+  
   if (progress >= 100 && !isFinished.value) {
     isFinished.value = true
     raceTime.value = raceDuration.value
@@ -64,8 +64,6 @@ const updateRaceProgress = () => {
 
 // Start/stop race based on raceStarted prop
 watch(() => props.raceStarted, (started) => {
-  console.log('Race started:', started) // Debug log
-
   if (started && !isFinished.value) {
     // Reset values
     raceProgress.value = 0
@@ -167,11 +165,18 @@ onUnmounted(() => {
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   background: #fafafa;
+  transition: all 0.3s ease;
+}
+
+.horse-runner.finished {
+  background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+  border-color: #c3e6cb;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
 }
 
 .track-container {
   position: relative;
-  width: 70%; /* Fixed width for the track */
+  width: 70%;
   height: 40px;
   margin-right: 20px;
 }
@@ -197,7 +202,7 @@ onUnmounted(() => {
 .horse-icon {
   position: absolute;
   top: 50%;
-  transform: translateX(-50%) translateY(-50%) scaleX(-1);
+  transform: scaleX(-1);
   font-size: 32px;
   transition: left 0.1s linear;
   z-index: 2;

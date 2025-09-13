@@ -30,8 +30,25 @@ defineProps({
 
 .main-content {
   flex: 1;
-  background-color: rgb(17, 129, 58);
+  background-image: url('/images/racing-track.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   width: 100%;
+  position: relative;
+}
+
+.main-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(1px);
+  z-index: 1;
 }
 
 .container {
@@ -39,6 +56,8 @@ defineProps({
   padding: 0 2rem;
   width: 100%;
   box-sizing: border-box;
+  position: relative;
+  z-index: 2;
 }
 
 @media (max-width: 768px) {

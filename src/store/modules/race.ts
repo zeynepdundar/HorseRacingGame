@@ -38,6 +38,12 @@ export default {
       state.currentRound = roundNumber;
       state.raceScheduled = roundNumber > 0;
     },
+    markRoundCompleted(state: Race, roundId: number) {
+      const round = state.rounds.find(r => r.id === roundId);
+      if (round) {
+        round.isCompleted = true;
+      }
+    },
     resetRace({ commit }) {
       //commit("resetRace");
     },
@@ -56,6 +62,7 @@ export default {
           id: idx + 1,
           distance,
           selectedHorses: selected,
+          isCompleted: false,
         };
       });
 
@@ -70,17 +77,20 @@ export default {
     startRace({ state, commit }) {
       if (!state.rounds.length) return;
       
-      // Start the race from round 1
+      // Start the race for the current round (don't override it)
       commit("setRaceStarted", true);
-      commit("setCurrentRound", 1);
       
-      // Get horses for round 1
-      const horses = state.rounds[0]?.selectedHorses || [];
+      // Get horses for the current round
+      const currentRoundIndex = state.currentRound - 1;
+      const horses = state.rounds[currentRoundIndex]?.selectedHorses || [];
       commit("setSelectedHorse", horses);
     },
     
     nextRound({ state, commit }) {
       if (!state.rounds.length || !state.raceStarted) return;
+      
+      // Mark current round as completed
+      commit("markRoundCompleted", state.currentRound);
       
       const next = state.currentRound + 1;
       if (next <= state.rounds.length) {

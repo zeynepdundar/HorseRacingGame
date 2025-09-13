@@ -1,22 +1,29 @@
 <template>
   <div class="rounds-list-section">
     <h3 class="rounds-title">Race Program</h3>
-    <div class="rounds-grid-six">
-      <div v-for="round in rounds" :key="round.id" class="round-card">
+    <div class="rounds-flex-container">
+      <div 
+        v-for="round in rounds" 
+        :key="round.id" 
+        class="round-card"
+        :class="{ 
+          'clickable': !round.isCompleted && !raceStarted,
+          'current-round': round.id === currentRound,
+          'completed-round': round.isCompleted
+        }"
+        @click="handleRoundClick(round.id)"
+      >
         <div class="round-header">
           <h4>{{ getOrdinalNumber(round.id) }} Lap</h4>
           <span class="distance">{{ round.distance }}m</span>
         </div>
-        <RoundTable :horses="round.selectedHorses || []" />
-        <div class="round-actions">
-          <Button 
-            @click="startRound(round.id)" 
-            variant="inner" 
-            class="start-round-btn"
-            :disabled="isRoundStarted(round.id)"
-          >
-            {{ isRoundStarted(round.id) ? '🏁 Started' : '▶️ Start Round' }}
-          </Button>
+        <RoundTable 
+          :horses="round.selectedHorses || []" 
+          :isCurrentRound="round.id === currentRound"
+          :isCompleted="round.isCompleted || false"
+        />
+        <div v-if="!round.isCompleted && !raceStarted" class="round-click-hint">
+          Click to start this round
         </div>
       </div>
     </div>
@@ -42,6 +49,17 @@ function getOrdinalNumber(num: number): string {
   return num + suffix
 }
 
+function handleRoundClick(roundId: number) {
+  // Only allow clicking if race hasn't started and round isn't completed
+  if (raceStarted.value || rounds.value.find(r => r.id === roundId)?.isCompleted) {
+    return
+  }
+  
+  // Set the current round and start the race
+  store.commit('race/setCurrentRound', roundId)
+  store.dispatch('race/startRace')
+}
+
 function startRound(roundId: number) {
   // Set the current round and start the race
   store.dispatch('race/startRace')
@@ -64,22 +82,34 @@ function isRoundStarted(roundId: number): boolean {
 .rounds-list-section {
   border-radius: 10px;
   animation: slideInUp 0.5s ease-out;
+  width: 100%;
+  height: calc(100vh - 40px); /* Static height within window */
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 15px;
+  box-sizing: border-box;
 }
 
 .rounds-title {
-  margin: 0;
+  margin: 0 0 15px 0;
   color: #2c3e50;
   font-size: 1.5rem;
   font-weight: 700;
+  flex-shrink: 0; /* Prevent title from shrinking */
 }
 
-.rounds-grid-six {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
+.rounds-flex-container {
+  display: flex;
+  flex-direction: column;
   gap: 8px;
-  margin: 10px 0;
   width: 100%;
   padding: 0;
+  flex: 1; /* Take remaining space */
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0; /* Allow flex item to shrink below content size */
 }
 
 .round-card {
@@ -92,11 +122,30 @@ function isRoundStarted(roundId: number): boolean {
   height: fit-content;
   display: flex;
   flex-direction: column;
+  flex-shrink: 0; /* Prevent cards from shrinking */
+  position: relative;
 }
 
-.round-card:hover {
+.round-card.clickable {
+  cursor: pointer;
+}
+
+.round-card.clickable:hover {
   border-color: #4CAF50;
   box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15);
+  transform: translateY(-1px);
+}
+
+.round-card.current-round {
+  border-color: #2196F3;
+  background: #e3f2fd;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
+}
+
+.round-card.completed-round {
+  border-color: #4CAF50;
+  background: #e8f5e8;
+  opacity: 0.8;
 }
 
 .round-header {
@@ -125,38 +174,31 @@ function isRoundStarted(roundId: number): boolean {
   border: 1px solid #ddd;
 }
 
+.round-click-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(76, 175, 80, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.round-card.clickable:hover .round-click-hint {
+  opacity: 1;
+}
+
 .round-actions {
   margin-top: 8px;
   display: flex;
   justify-content: center;
-}
-
-.start-round-btn {
-  padding: 6px 12px !important;
-  font-size: 0.7rem !important;
-  min-width: auto !important;
-  width: 100%;
-  background: linear-gradient(145deg, #4CAF50, #45a049) !important;
-  color: white !important;
-  border-radius: 4px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.5px !important;
-  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3) !important;
-  transition: all 0.2s ease !important;
-}
-
-.start-round-btn:hover:not(:disabled) {
-  background: linear-gradient(145deg, #45a049, #4CAF50) !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.4) !important;
-}
-
-.start-round-btn:disabled {
-  background: linear-gradient(145deg, #9E9E9E, #757575) !important;
-  color: #BDBDBD !important;
-  cursor: not-allowed !important;
-  transform: none !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* Animations */

@@ -67,19 +67,24 @@ const hasRows = computed(() => props.rows && props.rows.length > 0)
 .table-container {
   display: flex;
   flex-direction: column;
-  border-radius: 6px;
+  border-radius: 8px;
   margin-top: 8px;
   overflow: hidden;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-  background: white;
+  box-shadow: 
+    0 4px 20px rgba(76, 175, 80, 0.15),
+    0 1px 4px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(76, 175, 80, 0.1);
 }
 
 .table-header {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: #2c3e50;
+  background: linear-gradient(135deg, #2e7d32, #388e3c);
   color: white;
+  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.3);
 }
 
 .table-body-scroll {
@@ -132,7 +137,12 @@ const hasRows = computed(() => props.rows && props.rows.length > 0)
 }
 
 .ui-table tbody tr:nth-child(even) {
-  background-color: #fafafa;
+  background-color: rgba(76, 175, 80, 0.03);
+}
+
+.ui-table tbody tr:hover {
+  background-color: rgba(76, 175, 80, 0.08);
+  transition: background-color 0.2s ease;
 }
 
 .ui-table td {
