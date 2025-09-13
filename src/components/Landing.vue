@@ -6,7 +6,6 @@ const emit = defineEmits(["start"])
 
 <template>
   <div class="landing">
-    <!-- backdrop layer -->
     <div class="overlay">
       <div class="game-content">
         <div class="game-title">
