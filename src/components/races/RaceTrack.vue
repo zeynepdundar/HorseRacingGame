@@ -3,7 +3,6 @@
     <div class="round-header">
       <h2>{{ getOrdinalNumber(currentRound) }} Lap ({{ currentRoundData?.distance }}m)</h2>
       <Button  
-        variant="inner" 
         class="start-round-btn" 
         :disabled="raceStarted && !isRaceComplete" 
         @click="raceStarted ? nextRound() : startRace()"

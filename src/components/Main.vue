@@ -1,12 +1,12 @@
 <template>
   <div class="main-container">
-    <div class="game-actions-container"  v-if="!showRoundsList">
+    <div class="game-actions-container" v-if="!showRoundsList">
       <div class="game-actions">
-        <Button @click="assignRandomHorses" variant="inner" class="start-race-btn">
-         Setup Race
+        <Button @click="assignRandomHorses" class="start-race-btn">
+          Setup Race
         </Button>
-        <Button @click="randomizeHorseConditions" variant="inner" class="randomize-btn">
-        Refresh Horses
+        <Button @click="randomizeHorseConditions" class="randomize-btn">
+          Refresh Horses
         </Button>
       </div>
     </div>
@@ -19,25 +19,13 @@
     <!-- Modal -->
     <div v-if="showModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
-        <header class="modal-header">
-          <h3 class="modal-title">🎉 Horses Assigned!</h3>
-          <button class="modal-close" @click="closeModal" aria-label="Close">&times;</button>
-        </header>
+        <h3 class="modal-title"> Race Ready!</h3>
+        <p>{{ selectedHorses.length }} random horses have been successfully assigned to each round.</p>
+        <p class="ready-text">Ready to start the race!</p>
 
-        <main class="modal-body">
-          <p>
-            {{ selectedHorses.length }} random horses have been successfully assigned to each round.
-          </p>
-          <p class="ready-text">
-            Ready to start the race!
-          </p>
-        </main>
-
-        <footer class="modal-footer">
-          <Button @click="closeModal" variant="inner">
-            Close
-          </Button>
-        </footer>
+        <Button @click="closeModal" class="close-btn">
+          OK
+        </Button>
       </div>
     </div>
 
@@ -63,7 +51,6 @@ import HoursesList from './horses/HoursesList.vue'
 import RaceSchedule from './races/RaceSchedule.vue'
 import RaceTrack from './races/RaceTrack.vue'
 
-
 const store = useStore()
 const selectedHorses = ref<number[]>([])
 const showModal = ref<boolean>(false)
@@ -78,6 +65,7 @@ const columns = [
   { key: 'color', label: 'Color', width: 120 },
   { key: 'condition', label: 'Condition', width: 150 }
 ]
+
 function assignRandomHorses() {
   selectedHorses.value = []
   const allHorseIds = horses.value.map(horse => horse.id)
@@ -90,7 +78,7 @@ function assignRandomHorses() {
   // Hide any existing rounds list and show modal
   showRoundsList.value = false
   showModal.value = true
-  
+
   // Auto-close modal after 5 seconds
   setTimeout(() => {
     closeModal()
@@ -105,20 +93,6 @@ function closeModal() {
 
 function randomizeHorseConditions() {
   store.dispatch('horses/randomizeConditions')
-}
-
-function getConditionColor(condition: number): string {
-  if (condition >= 80) return '#4CAF50'
-  if (condition >= 60) return '#FFC107'
-  if (condition >= 40) return '#FF9800'
-  return '#F44336'
-}
-
-function getOrdinalNumber(num: number): string {
-  const suffixes = ['th', 'st', 'nd', 'rd']
-  const value = num % 100
-  const suffix = suffixes[(value - 20) % 10] || suffixes[value] || suffixes[0]
-  return num + suffix
 }
 </script>
 
@@ -185,14 +159,13 @@ function getOrdinalNumber(num: number): string {
 }
 
 .horse-list-section {
-  background: linear-gradient(135deg, 
-    rgba(76, 175, 80, 0.15), 
-    rgba(56, 142, 60, 0.1)
-  );
+  background: linear-gradient(135deg,
+      rgba(76, 175, 80, 0.15),
+      rgba(56, 142, 60, 0.1));
   border: 1px solid rgba(76, 175, 80, 0.2);
   border-radius: 12px;
   padding: 15px 20px;
-  box-shadow: 
+  box-shadow:
     0 8px 32px rgba(76, 175, 80, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   flex: 1;
@@ -211,11 +184,10 @@ function getOrdinalNumber(num: number): string {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(45deg, 
-    rgba(255, 255, 255, 0.1) 0%, 
-    transparent 50%, 
-    rgba(76, 175, 80, 0.05) 100%
-  );
+  background: linear-gradient(45deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 50%,
+      rgba(76, 175, 80, 0.05) 100%);
   pointer-events: none;
   border-radius: 12px;
 }
@@ -223,77 +195,36 @@ function getOrdinalNumber(num: number): string {
 /* Modal Styles */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
+  inset: 0;
+  background: rgba(0,0,0,0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  animation: fadeIn 0.3s ease-out;
 }
 
 .modal-content {
-  background: white;
+  background: #fff;
+  padding: 20px 28px;
   border-radius: 12px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-  max-width: 500px;
-  width: 90%;
-  max-height: 80vh;
-  overflow: hidden;
-  animation: slideIn 0.3s ease-out;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid #e0e0e0;
-  background: #f8f9fa;
-}
-
-.modal-header h3 {
-  margin: 0;
-  color: #2c3e50;
-  font-size: 1.4rem;
-  font-weight: 700;
-}
-
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 24px;
-  color: #7f8c8d;
-  cursor: pointer;
-  padding: 0;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.2s;
-}
-
-.modal-close:hover {
-  background: #e0e0e0;
-  color: #2c3e50;
-}
-
-.modal-body {
-  padding: 24px;
-  max-height: 50vh;
-  overflow-y: auto;
-}
-
-.modal-body p {
-  margin: 0 0 20px 0;
-  color: #555;
-  font-size: 1rem;
+  max-width: 400px;
   text-align: center;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  animation: fadeIn 0.25s ease;
+}
+
+.modal-title {
+  margin-bottom: 12px;
+  font-size: 20px;
+}
+
+.ready-text {
+  font-weight: bold;
+  margin: 12px 0 20px;
+}
+
+.close-btn {
+  margin-top: 8px;
 }
 
 .ready-text {
@@ -302,12 +233,7 @@ function getOrdinalNumber(num: number): string {
   color: #4CAF50 !important;
 }
 
-.modal-footer {
-  padding: 20px 24px;
-  border-top: 1px solid #e0e0e0;
-  text-align: center;
-  background: #f8f9fa;
-}
+
 
 /* Animations */
 @keyframes fadeIn {
@@ -335,22 +261,26 @@ function getOrdinalNumber(num: number): string {
 /* Race Layout Styles */
 .race-layout {
   display: flex;
-  gap: 0; /* Remove gap */
+  gap: 0;
+  /* Remove gap */
   height: calc(100vh - 20px);
-  padding: 0 10px 0 0; /* Remove left padding, keep right padding */
+  padding: 0 10px 0 0;
+  /* Remove left padding, keep right padding */
 }
 
 .race-track-container {
   flex: 3;
   display: flex;
   flex-direction: column;
-  padding-right: 0; /* Ensure no padding on right side */
+  padding-right: 0;
+  /* Ensure no padding on right side */
 }
 
 .race-schedule-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  margin-left: 0; /* Ensure no margin */
+  margin-left: 0;
+  /* Ensure no margin */
 }
 </style>

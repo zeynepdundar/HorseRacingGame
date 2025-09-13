@@ -2,29 +2,17 @@
   <div class="rounds-list-section">
     <h3 class="rounds-title">Race Program</h3>
     <div class="rounds-flex-container">
-      <div 
-        v-for="round in rounds" 
-        :key="round.id" 
-        class="round-card"
-        :class="{ 
-          'clickable': !round.isCompleted && !raceStarted,
-          'current-round': round.id === currentRound,
-          'completed-round': round.isCompleted
-        }"
-        @click="handleRoundClick(round.id)"
-      >
+      <div v-for="round in rounds" :key="round.id" class="round-card" :class="{
+        'clickable': !round.isCompleted && !raceStarted,
+        'current-round': round.id === currentRound,
+        'completed-round': round.isCompleted
+      }">
         <div class="round-header">
           <h4>{{ getOrdinalNumber(round.id) }} Lap</h4>
           <span class="distance">{{ round.distance }}m</span>
         </div>
-        <RoundTable 
-          :horses="round.selectedHorses || []" 
-          :isCurrentRound="round.id === currentRound"
-          :isCompleted="round.isCompleted || false"
-        />
-        <div v-if="!round.isCompleted && !raceStarted" class="round-click-hint">
-          Click to start this round
-        </div>
+        <RoundTable :horses="round.selectedHorses || []" :isCurrentRound="round.id === currentRound"
+          :isCompleted="round.isCompleted || false" />
       </div>
     </div>
   </div>
@@ -35,55 +23,21 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 import type { Round } from '../../types/round'
 import RoundTable from './RoundTable.vue'
-import Button from '../ui/Button.vue'
+import { getOrdinalNumber } from '../../utils/numberUtils.ts'
 
 const store = useStore()
 const rounds = computed<Round[]>(() => store.getters['race/rounds'])
 const currentRound = computed(() => store.getters['race/currentRound'])
 const raceStarted = computed(() => store.getters['race/raceStarted'])
 
-function getOrdinalNumber(num: number): string {
-  const suffixes = ['th', 'st', 'nd', 'rd']
-  const value = num % 100
-  const suffix = suffixes[(value - 20) % 10] || suffixes[value] || suffixes[0]
-  return num + suffix
-}
-
-function handleRoundClick(roundId: number) {
-  // Only allow clicking if race hasn't started and round isn't completed
-  if (raceStarted.value || rounds.value.find(r => r.id === roundId)?.isCompleted) {
-    return
-  }
-  
-  // Set the current round and start the race
-  store.commit('race/setCurrentRound', roundId)
-  store.dispatch('race/startRace')
-}
-
-function startRound(roundId: number) {
-  // Set the current round and start the race
-  store.dispatch('race/startRace')
-  store.commit('race/setCurrentRound', roundId)
-  
-  // Get horses for the selected round
-  const round = rounds.value.find(r => r.id === roundId)
-  if (round) {
-    store.commit('race/setSelectedHorse', round.selectedHorses || [])
-  }
-}
-
-function isRoundStarted(roundId: number): boolean {
-  return raceStarted.value && currentRound.value >= roundId
-}
 </script>
 
 <style scoped>
-/* Rounds List Section */
 .rounds-list-section {
   border-radius: 10px;
   animation: slideInUp 0.5s ease-out;
   width: 100%;
-  height: calc(100vh - 40px); /* Static height within window */
+  height: calc(100vh - 40px);
   display: flex;
   flex-direction: column;
   background: #fff;
@@ -97,7 +51,7 @@ function isRoundStarted(roundId: number): boolean {
   color: #2c3e50;
   font-size: 1.5rem;
   font-weight: 700;
-  flex-shrink: 0; /* Prevent title from shrinking */
+  flex-shrink: 0;
 }
 
 .rounds-flex-container {
@@ -106,10 +60,10 @@ function isRoundStarted(roundId: number): boolean {
   gap: 8px;
   width: 100%;
   padding: 0;
-  flex: 1; /* Take remaining space */
+  flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  min-height: 0; /* Allow flex item to shrink below content size */
+  min-height: 0;
 }
 
 .round-card {
@@ -122,7 +76,7 @@ function isRoundStarted(roundId: number): boolean {
   height: fit-content;
   display: flex;
   flex-direction: column;
-  flex-shrink: 0; /* Prevent cards from shrinking */
+  flex-shrink: 0;
   position: relative;
 }
 
