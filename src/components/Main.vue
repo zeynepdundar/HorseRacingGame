@@ -1,7 +1,7 @@
 <template>
   <div class="main-container">
     <!-- Game Actions - Parent Level -->
-    <div class="game-actions-container">
+    <div class="game-actions-container"  v-if="!showRoundsList">
       <div class="game-actions">
         <Button @click="assignRandomHorses" variant="inner" class="start-race-btn">
           🏁 Start Race
@@ -13,50 +13,65 @@
     </div>
 
     <!-- Horses List -->
-    <div class="horse-list-section">
+    <div class="horse-list-section" v-if="!showRoundsList">
       <HoursesList :horses="horses" :columns="columns" />
     </div>
 
     <!-- Modal -->
-    <div v-if="showModal" class="modal-overlay" @click="showModal = false">
+    <div v-if="showModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <header class="modal-header">
           <h3 class="modal-title">🎉 Horses Assigned!</h3>
-          <button class="modal-close" @click="showModal = false" aria-label="Close">&times;</button>
+          <button class="modal-close" @click="closeModal" aria-label="Close">&times;</button>
         </header>
 
         <main class="modal-body">
           <p>
             {{ selectedHorses.length }} random horses have been successfully assigned to each round.
           </p>
-
-          <div class="rounds-grid">
-            <div v-for="round in rounds" :key="round.id" class="round-card">
-              <div class="round-header">
-                <h4>Round {{ round.id }}</h4>
-                <span class="distance">{{ round.distance }}m</span>
-              </div>
-              <div class="assigned-horses">
-                <div v-for="horse in round.selectedHorses" :key="horse.id" class="horse-chip">
-                  <div class="horse-avatar-small" :style="{ backgroundColor: horse.color || '#ccc' }">
-                    🐎
-                  </div>
-                  <span class="horse-name-small">{{ horse.name }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <p class="ready-text">
             Ready to start the race!
           </p>
         </main>
 
         <footer class="modal-footer">
-          <Button @click="showModal = false" variant="inner">
+          <Button @click="closeModal" variant="inner">
             Close
           </Button>
         </footer>
+      </div>
+    </div>
+
+    <!-- Round List Section (shown after modal closes) -->
+    <div v-if="showRoundsList" class="rounds-list-section">
+      <h3 class="rounds-title">Race Rounds</h3>
+      <div class="rounds-grid-six">
+        <div v-for="round in rounds" :key="round.id" class="round-card">
+          <div class="round-header">
+            <h4>Round {{ round.id }}</h4>
+            <span class="distance">{{ round.distance }}m</span>
+          </div>
+          <div class="assigned-horses-table">
+            <table class="horses-table">
+              <tbody>
+                <tr v-for="horse in round.selectedHorses" :key="horse.id">
+                  <td class="horse-name-cell">
+                    <div class="horse-avatar-small" :style="{ backgroundColor: horse.color || '#ccc' }">
+                      🐎
+                    </div>
+                    {{ horse.name }}
+                  </td>
+
+                  <td class="horse-condition-cell">
+                    <span class="condition-badge" :style="{ backgroundColor: getConditionColor(horse.condition) }">
+                      {{ horse.condition }}%
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -74,6 +89,7 @@ import HoursesList from './horses/HoursesList.vue'
 const store = useStore()
 const selectedHorses = ref<number[]>([])
 const showModal = ref<boolean>(false)
+const showRoundsList = ref<boolean>(false)
 const horses = computed<Horse[]>(() => store.getters['horses/allHorses'])
 const rounds = computed(() => store.getters['race/rounds'])
 
@@ -88,15 +104,23 @@ function assignRandomHorses() {
   const shuffled = [...allHorseIds].sort(() => Math.random() - 0.5)
   selectedHorses.value = shuffled.slice(0, 10)
 
-
-
   // Generate race program with 6 rounds
   store.dispatch('race/generateRaceProgram')
 
+  // Hide any existing rounds list and show modal
+  showRoundsList.value = false
   showModal.value = true
+  
+  // Auto-close modal after 5 seconds
   setTimeout(() => {
-    showModal.value = false
-  }, 5000) // Increased timeout to give time to see the cards
+    closeModal()
+  }, 5000)
+}
+
+function closeModal() {
+  showModal.value = false
+  // Show rounds list after modal closes
+  showRoundsList.value = true
 }
 
 function randomizeHorseConditions() {
@@ -186,6 +210,22 @@ function getConditionColor(condition: number): string {
   max-height: 80vh
 }
 
+/* Rounds List Section */
+.rounds-list-section {
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 10px;
+  animation: slideInUp 0.5s ease-out;
+}
+
+.rounds-title {
+  margin: 0 0 20px 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+}
+
 
 
 /* Modal Styles */
@@ -273,12 +313,23 @@ function getConditionColor(condition: number): string {
   overflow-y: auto;
 }
 
+.rounds-grid-six {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin: 10px 0;
+  width: 100%;
+  padding: 0;
+}
+
 .round-card {
   background: #f8f9fa;
-  border-radius: 12px;
-  padding: 16px;
-  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
   transition: all 0.3s ease;
+  width: 100%;
+  height: fit-content;
 }
 
 .round-card:hover {
@@ -290,24 +341,24 @@ function getConditionColor(condition: number): string {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
+  margin-bottom: 4px;
+  padding-bottom: 2px;
   border-bottom: 1px solid #e0e0e0;
 }
 
 .round-header h4 {
   margin: 0;
   color: #2c3e50;
-  font-size: 1.1rem;
+  font-size: 0.8rem;
   font-weight: 700;
 }
 
 .distance {
   background: #4CAF50;
   color: white;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.85rem;
+  padding: 1px 4px;
+  border-radius: 8px;
+  font-size: 0.6rem;
   font-weight: 600;
 }
 
@@ -335,13 +386,13 @@ function getConditionColor(condition: number): string {
 }
 
 .horse-avatar-small {
-  width: 20px;
-  height: 20px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8rem;
+  font-size: 0.5rem;
   color: white;
   font-weight: bold;
 }
@@ -350,6 +401,72 @@ function getConditionColor(condition: number): string {
   font-weight: 600;
   color: #2c3e50;
   white-space: nowrap;
+}
+
+/* Table Styles for Rounds */
+.assigned-horses-table {
+  margin-top: 4px;
+  overflow-x: auto;
+}
+
+.horses-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.7rem;
+  background: white;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+
+.horses-table td {
+  padding: 2px 4px;
+  border-bottom: 1px solid #e0e0e0;
+  vertical-align: middle;
+}
+
+.horses-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.horse-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.65rem;
+}
+
+.horse-color-cell {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: #555;
+  font-size: 0.6rem;
+}
+
+.color-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+}
+
+.horse-condition-cell {
+  text-align: center;
+}
+
+.condition-badge {
+  display: inline-block;
+  padding: 1px 3px;
+  border-radius: 6px;
+  color: white;
+  font-weight: 600;
+  font-size: 0.5rem;
+  min-width: 20px;
+  text-align: center;
 }
 
 .ready-text {
@@ -427,6 +544,18 @@ function getConditionColor(condition: number): string {
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>
