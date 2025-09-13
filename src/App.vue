@@ -8,10 +8,7 @@ const started = ref(false)
 </script>
 
 <template>
-  <!-- Show Landing full screen if game not started -->
   <Landing v-if="!started" @start="started = true" />
-
-  <!-- After start, show Layout with Main -->
   <Layout v-else title="Horse Racing">
     <Main />
   </Layout>

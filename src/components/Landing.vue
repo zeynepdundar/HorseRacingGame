@@ -8,8 +8,15 @@ const emit = defineEmits(["start"])
   <div class="landing">
     <!-- backdrop layer -->
     <div class="overlay">
-      <h1>Horse Racing Game</h1>
-      <Button @click="emit('start')">Play</Button>
+      <div class="game-content">
+        <div class="game-title">
+          <h1>Horse Racing Game</h1>
+          <p class="subtitle">Experience the thrill of the track!</p>
+        </div>
+        <div class="game-actions">
+          <Button @click="emit('start')" class="play-button">Start Race</Button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -20,67 +27,149 @@ const emit = defineEmits(["start"])
   height: 100vh;
   width: 100%;
   background:
-    url('../assets/test.jpg') no-repeat center bottom / 100% auto,
-    linear-gradient(to bottom, white 0%, white 60%, #f0f0f0 100%);
-  background-color: white;
-  background-position: bottom;
+    url('../assets/landing-bg.jpg') no-repeat center center / cover,
+    linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.landing::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.1) 50%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+  z-index: 1;
 }
 
 .overlay {
+  position: relative;
   height: 100%;
   width: 100%;
-  background: rgba(255, 255, 255, 0.5);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
   padding: 20px;
+  z-index: 2;
+}
+
+.game-content {
+  max-width: 800px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+}
+
+.game-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
 
 h1 {
-  font-family: 'Racing Sans One', cursive;
-  font-size: 4rem;
-  margin-bottom: 4rem;
-  color: #2a623d;
-  text-shadow: 2px 2px 0px #f9c74f;
-  letter-spacing: 2px;
-}
-
-
-
-/* Game button styling */
-.game-button {
-  padding: 18px 50px;
-  font-size: 1.5rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 10px;
-  background: linear-gradient(to bottom, #2a623d, #1e4a2f);
-  color: white;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  box-shadow: 0 6px #1a3d26, 0 10px 20px rgba(0, 0, 0, 0.15);
-  transition: all 0.2s ease;
-  font-family: 'Racing Sans One', cursive;
-  position: relative;
-  overflow: hidden;
-}
-
-h1 {
-  font-size: 40px;
-  margin-bottom: 20px;
-  color: #ffd60a;
-  margin-bottom: 20px;
-  font-size: 2.8rem;
-  text-shadow: 0 0 10px rgba(255, 214, 10, 0.5);
-  letter-spacing: 2px;
+  font-family: 'Arial Black', sans-serif;
+  font-size: clamp(3rem, 8vw, 6rem);
+  margin: 0;
+  color: #ffd700;
+  text-shadow: 
+    3px 3px 0px #ff6b35,
+    6px 6px 0px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(255, 215, 0, 0.5);
+  letter-spacing: 3px;
   font-weight: 900;
-  position: relative;
-  display: inline-block;
+  text-transform: uppercase;
+  animation: titleGlow 2s ease-in-out infinite alternate;
+}
+
+.subtitle {
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  color: #ffffff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  font-weight: 300;
+  letter-spacing: 1px;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.game-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.play-button {
+  transform: scale(1.1);
+  animation: buttonPulse 2s ease-in-out infinite;
+}
+
+@keyframes titleGlow {
+  from {
+    text-shadow: 
+      3px 3px 0px #ff6b35,
+      6px 6px 0px rgba(0, 0, 0, 0.3),
+      0 0 20px rgba(255, 215, 0, 0.5);
+  }
+  to {
+    text-shadow: 
+      3px 3px 0px #ff6b35,
+      6px 6px 0px rgba(0, 0, 0, 0.3),
+      0 0 30px rgba(255, 215, 0, 0.8),
+      0 0 40px rgba(255, 107, 53, 0.3);
+  }
+}
+
+@keyframes buttonPulse {
+  0%, 100% {
+    transform: scale(1.1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .game-content {
+    gap: 2rem;
+    padding: 0 1rem;
+  }
+  
+  h1 {
+    letter-spacing: 2px;
+  }
+  
+  .subtitle {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-content {
+    gap: 1.5rem;
+  }
+  
+  h1 {
+    letter-spacing: 1px;
+  }
+  
+  .play-button {
+    transform: scale(1);
+    animation: none;
+  }
 }
 </style>
