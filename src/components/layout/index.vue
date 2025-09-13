@@ -1,6 +1,6 @@
 <template>
   <div class="layout">
-    <the-header :title="title" />
+    <!-- <the-header :title="title" /> -->
     <main class="main-content" role="main">
       <div class="container">
         <slot />
@@ -30,7 +30,6 @@ defineProps({
 
 .main-content {
   flex: 1;
-  padding-top: 5rem;
   background-color: rgb(17, 129, 58);
   width: 100%;
 }
