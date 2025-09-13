@@ -46,6 +46,8 @@ const raceScheduled = computed(() => store.getters['race/raceScheduled'])
 const currentRound = computed(() => store.getters['race/currentRound'])
 const rounds = computed(() => store.getters['race/rounds'])
 const raceStarted = computed(() => store.getters['race/raceStarted'])
+console.log("dsds",raceScheduled)
+
 const horses = computed<Horse[]>(() => store.getters['horses/allHorses'])
 
 

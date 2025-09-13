@@ -40,7 +40,6 @@
 import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import type { Round } from '../../types/round'
-
 import HorseItem from '../horses/HorseItem.vue'
 import Button from '../ui/Button.vue'
 
@@ -51,6 +50,7 @@ const props = defineProps<{
 }>()
 
 const store = useStore()
+
 
 // Yarış süresini takip et
 const raceTime = ref(0)
@@ -72,6 +72,7 @@ const handleNextRound = () => {
 
 // Yarış başladığında süreyi takip et
 watch(() => props.raceStarted, (started) => {
+
   if (started) {
     raceTime.value = 0
     const interval = setInterval(() => {
@@ -119,31 +120,36 @@ const formattedRaceTime = computed(() => {
   flex-wrap: wrap;
 }
 
-.time-display, .distance-info {
+.time-display,
+.distance-info {
   font-size: 16px;
   color: #495057;
 }
+
 .track-container {
-  background: linear-gradient(to right, #8B4513, #D2691E);
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  position: relative;
-  min-height: 650px; /* Ensure minimum height */
-  height: 685px; /* Add fixed height */
+  width: 100%;
+  height: 400px;
+  background-image: url('/images/racing-track.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center
 }
 
 .track {
   position: relative;
   width: 100%;
-  height: 100%; /* This will now take the full 650px height */
+  height: 100%;
 }
 
 .start-line,
 .finish-line {
   position: absolute;
   top: 0;
-  bottom: 0; /* This will now work because .track has height */
+  bottom: 0;
+  /* This will now work because .track has height */
   width: 6px;
   background: repeating-linear-gradient(to bottom,
       #fff 0px,
@@ -166,7 +172,8 @@ const formattedRaceTime = computed(() => {
 .horse-lanes {
   position: relative;
   width: 100%;
-  height: 100%; /* Take full height of track */
+  height: 100%;
+  /* Take full height of track */
 }
 
 .horse-lane {
@@ -176,6 +183,7 @@ const formattedRaceTime = computed(() => {
   height: 60px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
+
 .next-round-btn:hover {
   background-color: #218838;
 }

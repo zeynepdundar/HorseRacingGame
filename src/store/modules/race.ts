@@ -27,6 +27,9 @@ export default {
     setSelectedHorse(state: Race, horses: Horse[]) {
      //state.selectedHorses = horses;
     },
+    setRaceStarted(state: Race, started: boolean) {
+      state.raceStarted = started;
+    },
     setRound(state: Race) {
       state.currentRound++;
       state.raceScheduled = true;
@@ -68,7 +71,7 @@ export default {
       if (!state.rounds.length) return;
       
       // Start the race from round 1
-      state.raceStarted = true;
+      commit("setRaceStarted", true);
       commit("setCurrentRound", 1);
       
       // Get horses for round 1
