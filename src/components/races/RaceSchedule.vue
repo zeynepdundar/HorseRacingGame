@@ -23,7 +23,7 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 import type { Round } from '../../types/round'
 import RoundTable from './RoundTable.vue'
-import { getOrdinalNumber } from '../../utils/numberUtils.ts'
+import { getOrdinalNumber } from '../../utils/index.ts'
 
 const store = useStore()
 const rounds = computed<Round[]>(() => store.getters['race/rounds'])

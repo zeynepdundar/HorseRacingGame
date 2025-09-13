@@ -1,13 +1,25 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 
-const props = defineProps({
-  columns: { type: Array, required: true },
-  rows: { type: Array, required: true },
-  rowKey: { type: [String, Function], default: null },
-  emptyText: { type: String, default: 'Kayıt bulunamadı.' },
-  maxHeight: { type: String, default: '400px' }
-})
+interface Column {
+  key: string
+  label: string
+  width?: number
+  align?: string
+  formatter?: (value: any, row: any, index: number) => any
+}
+
+const props = defineProps<{
+  columns: Column[]
+  rows: any[]
+  rowKey?: string | ((row: any, index: number) => string | number)
+  emptyText?: string
+  maxHeight?: string
+}>()
+
+defineSlots<{
+  cell: (props: { row: any; col: Column; value: any; rowIndex: number }) => any
+}>()
 
 const getRowKey = (row, index) => {
   if (!props.rowKey) return index
@@ -20,7 +32,7 @@ const hasRows = computed(() => props.rows && props.rows.length > 0)
 
 <template>
   <div class="table-wrapper">
-    <div class="table-container">
+    <div class="table-container" :style="{ '--max-height': maxHeight }">
       <table class="ui-table">
         <thead class="table-header">
           <tr>
@@ -32,13 +44,12 @@ const hasRows = computed(() => props.rows && props.rows.length > 0)
         </thead>
       </table>
       
-      <div class="table-body-scroll" :style="{ maxHeight: maxHeight }">
+      <div class="table-body-scroll" :style="{ maxHeight: '550px' }">
         <table class="ui-table">
           <tbody v-if="hasRows">
             <tr v-for="(row, rIdx) in rows" :key="getRowKey(row, rIdx)" class="ui-row">
-              <td v-for="col in columns" :key="col.key" :style="{ textAlign: col.align ?? 'left' }">
-                <slot name="cell" :row="row" :col="col"
-                  :value="col.formatter ? col.formatter(row[col.key], row, rIdx) : row[col.key]" :rowIndex="rIdx">
+              <td v-for="col in columns" :key="col.key" :style="{ textAlign: (col.align ?? 'left') as any }">
+                <slot name="cell" :row="row" :col="col" :value="col.formatter ? col.formatter(row[col.key], row, rIdx) : row[col.key]" :rowIndex="rIdx">
                   {{ col.formatter ? col.formatter(row[col.key], row, rIdx) : row[col.key] }}
                 </slot>
               </td>
