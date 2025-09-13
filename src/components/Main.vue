@@ -3,8 +3,19 @@
     <!-- Horses List - Full-width Card -->
     <div class="horse-list-section">
       <div class="game-header">
-        <h2>Racing Horses</h2>
-        <p>Available horses for the race</p>
+        <div class="header-content">
+          <div class="header-text">
+            <h2>Racing Horses</h2>
+            <p>Available horses for the race</p>
+          </div>
+          <Button 
+            @click="randomizeHorseConditions" 
+            variant="inner"
+            class="randomize-btn"
+          >
+            🎲 Randomize Conditions
+          </Button>
+        </div>
       </div>
       
       <div class="table-container">
@@ -73,10 +84,37 @@
                   variant="inner"
                   
         >
-          ASSIGN RANDOM HORSES
+          Start Race
         </Button>
       </div>
     </div>
+
+    <!-- Modal -->
+    <div v-if="showModal" class="modal-overlay" @click="showModal = false">
+  <div class="modal-content" @click.stop>
+    <header class="modal-header">
+      <h3 class="modal-title">🎉 Horses Assigned!</h3>
+      <button class="modal-close" @click="showModal = false" aria-label="Close">&times;</button>
+    </header>
+
+    <main class="modal-body">
+      <p>
+  {{ selectedHorses.length }} random horses have been successfully assigned to each round.
+</p>
+<p>
+  Ready to start the race!
+</p>
+
+    </main>
+
+    <footer class="modal-footer">
+      <Button @click="showModal = false" variant="inner">
+        Close
+      </Button>
+    </footer>
+  </div>
+</div>
+
   </div>
 </template>
 
@@ -88,6 +126,7 @@ import type { Horse } from '../types/horse'
 
 const store = useStore()
 const selectedHorses = ref<number[]>([])
+const showModal = ref<boolean>(false)
 const horses = computed<Horse[]>(() => store.getters['horses/allHorses'])
 
 function assignRandomHorses() {
@@ -95,7 +134,14 @@ function assignRandomHorses() {
   const allHorseIds = horses.value.map(horse => horse.id)
   const shuffled = [...allHorseIds].sort(() => Math.random() - 0.5)
   selectedHorses.value = shuffled.slice(0, 10)
-  alert(`10 horses have been randomly assigned for the race!`)
+  showModal.value = true
+  setTimeout(() => {
+    showModal.value = false
+  }, 2000)
+}
+
+function randomizeHorseConditions() {
+  store.dispatch('horses/randomizeConditions')
 }
 
 function getConditionColor(condition: number): string {
@@ -138,10 +184,19 @@ function getConditionColor(condition: number): string {
 }
 
 .game-header {
-  text-align: left;
   margin: 0 0 8px 0;
   padding-bottom: 8px;
   border-bottom: 1px solid #e0e0e0;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-text {
+  text-align: left;
 }
 
 .game-header h2 {
@@ -155,6 +210,12 @@ function getConditionColor(condition: number): string {
   font-size: 0.9rem;
   color: #7f8c8d;
   margin: 0;
+}
+
+.randomize-btn {
+  font-size: 0.85rem;
+  padding: 8px 16px;
+  white-space: nowrap;
 }
 
 .table-container {
@@ -302,5 +363,150 @@ function getConditionColor(condition: number): string {
   border-top: 1px solid #e0e0e0;
 }
 
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  animation: slideIn 0.3s ease-out;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #f8f9fa;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #7f8c8d;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  background: #e0e0e0;
+  color: #2c3e50;
+}
+
+.modal-body {
+  padding: 24px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.modal-body p {
+  margin: 0 0 20px 0;
+  color: #555;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.selected-horses-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.selected-horse-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #4CAF50;
+  transition: transform 0.2s;
+}
+
+.selected-horse-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.selected-horse-item .horse-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.selected-horse-item span {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.modal-footer {
+  padding: 20px 24px;
+  border-top: 1px solid #e0e0e0;
+  text-align: center;
+  background: #f8f9fa;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
 
 </style>

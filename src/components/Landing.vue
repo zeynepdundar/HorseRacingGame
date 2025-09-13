@@ -14,7 +14,7 @@ const emit = defineEmits(["start"])
           <p class="subtitle">Experience the thrill of the track!</p>
         </div>
         <div class="game-actions">
-          <Button @click="emit('start')" variant="landing">Start Race</Button>
+          <Button @click="emit('start')" variant="landing">Play</Button>
         </div>
       </div>
     </div>
