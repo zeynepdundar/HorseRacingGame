@@ -41,8 +41,9 @@
       </div>
     </div>
 
-    <!-- Round List Section (shown after modal closes) -->
-    <RoundList v-if="showRoundsList" />
+    <RaceSchedule v-if="showRoundsList" />
+
+    <RaceTrack v-if="showRoundsList" />
 
   </div>
 </template>
@@ -53,7 +54,7 @@ import { useStore } from 'vuex'
 import Button from './ui/Button.vue'
 import type { Horse } from '../types/horse'
 import HoursesList from './horses/HoursesList.vue'
-import RoundList from './races/RoundList.vue'
+import RaceSchedule from './races/RaceSchedule.vue'
 
 
 const store = useStore()
