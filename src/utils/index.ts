@@ -61,3 +61,16 @@ export function getColorName(hex: string): string {
     return HEX_TO_COLOR_NAME[hex.toUpperCase()] || 'Unknown'
 }
 
+// Convert seconds to MM:SS
+export const formatTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60)
+    const secs = (seconds % 60).toFixed(1)
+    return `${minutes}:${secs.padStart(4, '0')}`
+  }
+  
+// Convert MM:SS to seconds
+export const parseTime = (timeStr: string): number => {
+    const [minutes, seconds] = timeStr.split(':').map(Number)
+    return minutes * 60 + seconds
+  }
+

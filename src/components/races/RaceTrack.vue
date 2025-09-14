@@ -89,7 +89,7 @@ import { computed, ref, watch, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
 import type { Round } from '../../types/round'
 import type { Horse } from '../../types/horse'
-import { getContrastColor, getOrdinalNumber } from '../../utils';
+import { formatTime, getContrastColor, getOrdinalNumber, parseTime } from '../../utils';
 
 const props = defineProps<{
   rounds: Round[]
@@ -162,13 +162,41 @@ const formattedRaceTime = computed(() => {
   return `${minutes}:${seconds.padStart(4, '0')}`
 })
 
+// Calculate horse speed based on condition and randomization
+const calculateHorseSpeed = (horse: Horse): number => {
+  // Base speed multiplier based on condition (0-100, where 100 is best)
+  const conditionMultiplier = (horse.condition || 50) / 100
+  
+  // Much faster base speed range
+  const baseSpeedMin = 3.5  // Significantly increased from 1.2
+  const baseSpeedMax = 7.0  // Significantly increased from 2.8
+  
+  // Calculate base speed with condition influence
+  const conditionInfluence = 0.4 // Increased condition influence to 40%
+  const randomInfluence = 0.6    // Reduced random factor to 60% for more predictable but still random results
+  
+  const baseSpeed = baseSpeedMin + (baseSpeedMax - baseSpeedMin) * conditionMultiplier
+  const randomFactor = 0.7 + Math.random() * 0.6 // 0.7 to 1.3 multiplier (wider range)
+  
+  // Combine condition and random factors
+  const finalSpeed = baseSpeed * (
+    conditionInfluence + (randomInfluence * randomFactor)
+  )
+  
+  // Add some dynamic variation during race
+  const dynamicVariation = 0.85 + Math.random() * 0.3 // ±15% variation (increased)
+  return finalSpeed * dynamicVariation
+}
+
 // Initialize horse data
 const initializeHorses = () => {
   if (currentRoundData.value?.selectedHorses) {
     currentRoundData.value.selectedHorses.forEach(horse => {
       horsePositions.value[horse.id] = 0
-      // Random speed between 0.5 and 1.5 for variety
-      horseSpeeds.value[horse.id] = 0.5 + Math.random() * 1.0
+      
+      // Calculate base speed based on horse condition and add randomization
+      const baseSpeed = calculateHorseSpeed(horse)
+      horseSpeeds.value[horse.id] = baseSpeed
     })
   }
 }
@@ -180,7 +208,30 @@ const updateHorsePositions = () => {
   currentRoundData.value?.selectedHorses?.forEach(horse => {
     if (!isHorseFinished(horse.id)) {
       const currentPosition = horsePositions.value[horse.id] || 0
-      const speed = horseSpeeds.value[horse.id] || 1
+      let speed = horseSpeeds.value[horse.id] || 1
+
+      // Add dynamic speed variations during race for more realism
+      const raceProgress = currentPosition / 95
+      
+      // Early race: horses start faster and build up quickly
+      if (raceProgress < 0.15) {
+        speed *= 0.8 + (raceProgress * 1.33) // Start at 80% and quickly reach 100%
+      }
+      // Mid race: peak performance with variations
+      else if (raceProgress < 0.85) {
+        speed *= 1.0 + Math.random() * 0.15 // 100-115% with variations
+      }
+      // Final sprint: dramatic differences based on condition
+      else {
+        const staminaFactor = (horse.condition || 50) / 100
+        if (staminaFactor > 0.75) {
+          speed *= 1.2 + Math.random() * 0.3 // Strong horses sprint (120-150%)
+        } else if (staminaFactor > 0.5) {
+          speed *= 1.0 + Math.random() * 0.2 // Average horses maintain (100-120%)
+        } else {
+          speed *= 0.7 + Math.random() * 0.4 // Weak horses struggle (70-110%)
+        }
+      }
 
       // Update position (speed is in percentage per second)
       const newPosition = currentPosition + (speed * 0.1)
@@ -208,8 +259,12 @@ const startRace = () => {
 
 // Handle horse finishing
 const handleHorseFinished = (horse: Horse, finishTime: number) => {
-  const formattedTime = formatTime(finishTime)
-  const speed = (currentRoundData.value?.distance || 0) / finishTime
+  // Add small random variation to finish time for more realistic results
+  const timeVariation = 0.95 + Math.random() * 0.1 // ±5% variation
+  const adjustedFinishTime = finishTime * timeVariation
+  
+  const formattedTime = formatTime(adjustedFinishTime)
+  const speed = (currentRoundData.value?.distance || 0) / adjustedFinishTime
 
   finishedHorses.value.push({
     id: horse.id,
@@ -232,18 +287,6 @@ const handleHorseFinished = (horse: Horse, finishTime: number) => {
   })
 }
 
-// Format time helper
-const formatTime = (seconds: number): string => {
-  const minutes = Math.floor(seconds / 60)
-  const secs = (seconds % 60).toFixed(1)
-  return `${minutes}:${secs.padStart(4, '0')}`
-}
-
-// Parse time helper
-const parseTime = (timeStr: string): number => {
-  const [minutes, seconds] = timeStr.split(':').map(Number)
-  return minutes * 60 + seconds
-}
 
 // Next round handler
 const nextRound = () => {
