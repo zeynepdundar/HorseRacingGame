@@ -89,6 +89,7 @@ import { computed, ref, watch, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
 import type { Round } from '../../types/round'
 import type { Horse } from '../../types/horse'
+import { getOrdinalNumber } from '../../utils';
 
 const props = defineProps<{
   rounds: Round[]
@@ -97,12 +98,6 @@ const props = defineProps<{
 }>()
 
 const store = useStore()
-function getOrdinalNumber(num: number): string {
-  const suffixes = ['th', 'st', 'nd', 'rd']
-  const value = num % 100
-  const suffix = suffixes[(value - 20) % 10] || suffixes[value] || suffixes[0]
-  return num + suffix
-}
 // Race timing
 const raceTime = ref(0)
 const raceInterval = ref<ReturnType<typeof setInterval> | null>(null)

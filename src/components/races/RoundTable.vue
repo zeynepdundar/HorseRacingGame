@@ -41,7 +41,6 @@ defineProps<Props>()
 </script>
 
 <style scoped>
-/* Table Styles for Rounds */
 .assigned-horses-table {
   margin-top: 4px;
   overflow-x: auto;
@@ -68,7 +67,6 @@ defineProps<Props>()
   background: #f8f9fa;
 }
 
-/* Current round styling - darker background */
 .assigned-horses-table.current-round .horses-table {
   background: #2c3e50;
   box-shadow: 0 2px 8px rgba(44, 62, 80, 0.3);

@@ -9,7 +9,7 @@
 
     <Table :rows="horses" :columns="columns" maxHeight="550px">
       <template #cell="{ row, col }">
-        <!-- Horse column -->
+        <!-- Horse name column -->
         <div v-if="col.key === 'horse'" class="horse-cell">
           <div class="horse-avatar" :style="{ backgroundColor: row.color || '#4CAF50' }">🐎</div>
           <span class="horse-name">{{ row.name }}</span>
