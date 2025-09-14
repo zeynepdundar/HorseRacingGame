@@ -63,12 +63,12 @@
                   animationDelay: `${index * 0.1}s`
                 }">
               <div class="horse-icon" :style="{
-                color: horse.color || getDefaultHorseColor(horse.id),
+                color: horse.color || 'inherit',
                 filter: `drop-shadow(2px 2px 4px rgba(0,0,0,0.3))`
               }">🐎</div>
               <div class="horse-name" :style="{
-                backgroundColor: horse.color || getDefaultHorseColor(horse.id),
-                color: getContrastColor(horse.color || getDefaultHorseColor(horse.id))
+                backgroundColor: horse.color || 'inherit',
+                color: getContrastColor(horse.color || '#fff')
               }">{{ horse.name }}</div>
             </div>
           </div>
@@ -89,7 +89,7 @@ import { computed, ref, watch, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
 import type { Round } from '../../types/round'
 import type { Horse } from '../../types/horse'
-import { getOrdinalNumber } from '../../utils';
+import { getContrastColor, getOrdinalNumber } from '../../utils';
 
 const props = defineProps<{
   rounds: Round[]
@@ -107,24 +107,7 @@ const horsePositions = ref<Record<number, number>>({})
 const horseSpeeds = ref<Record<number, number>>({})
 const horseFinishTimes = ref<Record<number, number>>({})
 
-// Default horse colors - expanded for 10 horses
-const defaultHorseColors = [
-  '#8B4513', // Saddle Brown
-  '#A0522D', // Sienna
-  '#D2691E', // Chocolate
-  '#CD853F', // Peru
-  '#DEB887', // Burlywood
-  '#F4A460', // Sandy Brown
-  '#D2B48C', // Tan
-  '#BC8F8F', // Rosy Brown
-  '#A0522D', // Sienna
-  '#8B4513', // Saddle Brown
-  '#654321', // Dark Brown
-  '#8B7355', // Light Brown
-  '#A0522D', // Sienna
-  '#D2691E', // Chocolate
-  '#CD853F'  // Peru
-]
+
 
 // Finished horses tracking
 const finishedHorses = ref<Array<{
@@ -158,24 +141,8 @@ const getHorsePosition = (horseId: number) => {
   return horsePositions.value[horseId] || 0
 }
 
-// Get default color for horse
-const getDefaultHorseColor = (horseId: number) => {
-  return defaultHorseColors[horseId % defaultHorseColors.length]
-}
 
-// Get contrast color for text
-const getContrastColor = (backgroundColor: string) => {
-  // Convert hex to RGB
-  const hex = backgroundColor.replace('#', '')
-  const r = parseInt(hex.substr(0, 2), 16)
-  const g = parseInt(hex.substr(2, 2), 16)
-  const b = parseInt(hex.substr(4, 2), 16)
 
-  // Calculate luminance
-  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
-
-  return luminance > 0.5 ? '#000000' : '#FFFFFF'
-}
 
 // Check if all horses have finished
 const allHorsesFinished = computed(() => {

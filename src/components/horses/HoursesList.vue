@@ -18,7 +18,7 @@
         <!-- Color column -->
         <div v-else-if="col.key === 'color'" class="color-cell">
           <div class="color-dot" :style="{ backgroundColor: row.color || '#ccc' }"></div>
-          <span class="color-name">{{ row.color || 'Unknown' }}</span>
+          <span class="color-name">{{ getColorName(row.color)}}</span>
         </div>
 
         <!-- Condition column -->
@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
 import Table from '../ui/Table.vue'
-import { getConditionColor } from '../../utils/index.ts'
+import { getColorName, getConditionColor } from '../../utils/index.ts'
 import type { Horse } from '../../types/horse'
 
 interface Column {
