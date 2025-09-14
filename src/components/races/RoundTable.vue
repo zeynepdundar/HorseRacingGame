@@ -28,6 +28,7 @@
 
 <script setup lang="ts">
 import type { Horse } from '../../types/horse'
+import { getConditionColor } from '../../utils';
 
 interface Props {
   horses: Horse[]
@@ -37,12 +38,6 @@ interface Props {
 
 defineProps<Props>()
 
-function getConditionColor(condition: number): string {
-  if (condition >= 80) return '#4CAF50'
-  if (condition >= 60) return '#FFC107'
-  if (condition >= 40) return '#FF9800'
-  return '#F44336'
-}
 </script>
 
 <style scoped>

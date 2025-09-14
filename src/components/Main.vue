@@ -155,6 +155,7 @@ function refreshHorses() {
 
 .modal-content {
   background: #fff;
+  color: #000;
   padding: 20px 28px;
   border-radius: 12px;
   max-width: 400px;

@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue"   // ✅ add this line
+import { ref } from "vue"
 import Layout from './components/layout/index.vue'
 import Main from './components/Main.vue'
 import Landing from './components/Landing.vue'
