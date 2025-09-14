@@ -26,7 +26,7 @@ const emit = defineEmits(["start"])
   height: 100vh;
   width: 100%;
   background:
-    url('../assets/landing-bg.jpg') no-repeat center center / cover,
+    url('../assets/gettyimages-165931562-612x612.jpg') no-repeat center center / cover,
     linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
   display: flex;
   flex-direction: column;

@@ -1,15 +1,20 @@
 <template>
   <div class="rounds-list-section">
     <h3 class="rounds-title">Race Program</h3>
-    <div class="rounds-flex-container">
-      <div v-for="round in rounds" :key="round.id" class="round-card" :class="{
+    <div ref="roundsContainer" class="rounds-flex-container">
+      <div v-for="round in rounds" :key="round.id" :ref="el => setRoundRef(el, round.id)" class="round-card" :class="{
         'clickable': !round.isCompleted && !raceStarted,
         'current-round': round.id === currentRound,
         'completed-round': round.isCompleted
       }">
         <div class="round-header">
           <h4>{{ getOrdinalNumber(round.id) }} Lap</h4>
-          <span class="distance">{{ round.distance }}m</span>
+
+          <div class="round-status">
+            <span v-if="round.isCompleted" class="completed-text">COMPLETED</span>
+
+            <span class="distance">{{ round.distance }}m</span>
+          </div>
         </div>
         <RoundTable :horses="round.selectedHorses || []" :isCurrentRound="round.id === currentRound"
           :isCompleted="round.isCompleted || false" />
@@ -19,7 +24,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { nextTick } from 'vue'
 import { useStore } from 'vuex'
 import type { Round } from '../../types/round'
 import RoundTable from './RoundTable.vue'
@@ -30,6 +36,34 @@ const rounds = computed<Round[]>(() => store.getters['race/rounds'])
 const currentRound = computed(() => store.getters['race/currentRound'])
 const raceStarted = computed(() => store.getters['race/raceStarted'])
 
+// refs
+const roundsContainer = ref<HTMLElement | null>(null)
+  const roundRefs = ref<Record<number, HTMLElement>>({})
+const setRoundRef = (el: HTMLElement | null, id: number) => {
+  if (el) roundRefs.value[id] = el
+}
+
+const scrollToRound = async (roundId: number) => {
+  await nextTick()
+  const targetRound = roundRefs.value[roundId]
+  const container = roundsContainer.value
+  if (!targetRound || !container) return
+
+  const containerRect = container.getBoundingClientRect()
+  const targetRect = targetRound.getBoundingClientRect()
+
+  const scrollPosition =
+    container.scrollTop + (targetRect.top - containerRect.top) - containerRect.height / 4 + targetRect.height / 2
+
+  container.scrollTo({
+    top: Math.max(0, scrollPosition),
+    behavior: 'smooth'
+  })
+}
+
+defineExpose({
+  scrollToRound
+})
 </script>
 
 <style scoped>
@@ -111,6 +145,12 @@ const raceStarted = computed(() => store.getters['race/raceStarted'])
   border-bottom: 1px solid #e0e0e0;
 }
 
+.round-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .round-header h4 {
   margin: 0;
   color: #2c3e50;
@@ -126,6 +166,18 @@ const raceStarted = computed(() => store.getters['race/raceStarted'])
   font-size: 0.6rem;
   font-weight: 500;
   border: 1px solid #ddd;
+}
+
+.completed-text {
+  background: #4CAF50;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid #45a049;
 }
 
 .round-click-hint {

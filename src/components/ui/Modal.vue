@@ -32,7 +32,7 @@ const close = () => {
 
 onMounted(() => {
   // Auto-close after 5 seconds
-  timer = setTimeout(close, 5000)
+  timer = setTimeout(close, 500000000)
 })
 
 onUnmounted(() => {
@@ -44,19 +44,20 @@ onUnmounted(() => {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
   z-index: 1000;
 }
 
 .modal-content {
+  width: 100%;
+  max-width: 600px;
+  padding: 20px 28px;
   background: #fff;
   color: #000;
-  padding: 20px 28px;
   border-radius: 12px;
-  max-width: 400px;
   text-align: center;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
   animation: fadeIn 0.25s ease;
@@ -65,6 +66,7 @@ onUnmounted(() => {
 .modal-header {
   margin-bottom: 12px;
 }
+
 
 .modal-title {
   font-size: 20px;

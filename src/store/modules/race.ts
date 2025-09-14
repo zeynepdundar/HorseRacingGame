@@ -74,33 +74,36 @@ export default {
     resetRace({ commit }) {
       commit("resetRace");
     },
+
     startRace({ state, commit }) {
       if (!state.rounds.length) return;
-      
-      // Start the race for the current round (don't override it)
-      commit("setRaceStarted", true);
-      
-      // Get horses for the current round
-      const currentRoundIndex = state.currentRound - 1;
-      const horses = state.rounds[currentRoundIndex]?.selectedHorses || [];
-      commit("setSelectedHorse", horses);
-    },
     
+      // Start the race
+      commit("setRaceStarted", true);
+    
+      // Initialize to the first round
+      commit("setCurrentRound", 1);
+    
+      // Select horses for the first round
+      const firstRoundHorses = state.rounds[0]?.selectedHorses || [];
+      commit("setSelectedHorse", firstRoundHorses);
+    },
     nextRound({ state, commit }) {
       if (!state.rounds.length || !state.raceStarted) return;
-      
-      // Mark current round as completed
+    
+      // Mark the current round as completed
       commit("markRoundCompleted", state.currentRound);
-      
-      const next = state.currentRound + 1;
-      if (next <= state.rounds.length) {
-        commit("setCurrentRound", next);
-        const horses = state.rounds[next - 1]?.selectedHorses || [];
-        commit("setSelectedHorse", horses);
+    
+      // If there is a round after the current one, select its horses
+      const nextRoundIndex = state.currentRound; // component will increment currentRound
+      if (nextRoundIndex < state.rounds.length) {
+        const selectedHorses = state.rounds[nextRoundIndex]?.selectedHorses || [];
+        commit("setSelectedHorse", selectedHorses);
       } else {
-        // Race completed
-        state.raceStarted = false;
+        // Race finished
+        commit("setRaceStarted", false);
       }
-    },
+    }
+    
   },
 };

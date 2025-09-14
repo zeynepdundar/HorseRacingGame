@@ -21,10 +21,19 @@
     <!-- Race Simulation -->
     <section v-if="setupComplete" class="race-simulation">
       <aside class="race-track-container">
-        <RaceTrack :rounds="rounds" :current-round="currentRound" :race-started="raceStarted" />
+        <RaceTrack 
+          :rounds="rounds" 
+          :current-round="currentRound" 
+          :race-started="raceStarted" 
+          @scroll-to-next-round="handleScrollToNextRound"
+        />
       </aside>
       <aside class="race-schedule-container">
-        <RaceSchedule :rounds="rounds" />
+        <RaceSchedule 
+          ref="raceScheduleRef"
+          :rounds="rounds" 
+          :current-round="currentRound"
+        />
       </aside>
     </section>
   </div>
@@ -46,6 +55,7 @@ const store = useStore()
 const showModal = ref(false)
 const setupComplete = ref(false)
 const selectedHorses = ref<number[]>([])
+const raceScheduleRef = ref()
 
 // derived state
 const horses = computed<Horse[]>(() => store.getters['horses/allHorses'])
@@ -79,6 +89,13 @@ function closeModal() {
 
 function refreshHorses() {
   store.dispatch('horses/randomizeConditions')
+}
+
+// Handle scroll to next round
+function handleScrollToNextRound(roundNumber: number) {
+  if (raceScheduleRef.value) {
+    raceScheduleRef.value.scrollToRound(roundNumber)
+  }
 }
 </script>
 
@@ -152,7 +169,7 @@ function refreshHorses() {
   /* Race Layout */
   .race-simulation {
     display: flex;
-    gap: 0;
+    gap: 2rem;
     height: calc(100vh - 20px);
   }
 
