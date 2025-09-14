@@ -669,7 +669,8 @@ onUnmounted(() => {
   justify-content: center;
   /* center everything */
   position: relative;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
+  width: 100%;
 }
 
 /* Center the title */
@@ -709,10 +710,11 @@ onUnmounted(() => {
 .race-track {
   padding: 20px;
   max-width: 1200px;
-  height: calc(100vh - 40px);
-  /* Static height within window */
+  height: 87%;
   display: flex;
   flex-direction: column;
+  align-items: center; 
+  justify-content: center;
 }
 
 .race-track h2 {
