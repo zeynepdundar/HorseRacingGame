@@ -14,7 +14,7 @@ const emit = defineEmits(["start"])
           <p class="subtitle">Get ready for the ultimate race of glory!</p>
         </div>
         <div class="game-actions">
-          <Button class="new-btn" @click="emit('start')">▶ Start the Race!</Button>
+          <Button class="start-btn" variant="secondary" @click="emit('start')">▶ Start the Race!</Button>
         </div>
       </div>
     </div>
@@ -22,7 +22,7 @@ const emit = defineEmits(["start"])
 </template>
 
 <style scoped>
-/* Landing Section */
+
 .landing {
   position: relative;
   height: 100vh;
@@ -36,7 +36,6 @@ const emit = defineEmits(["start"])
   overflow: hidden;
 }
 
-/* Dark overlay for readability */
 .overlay {
   position: relative;
   height: 100%;
@@ -45,10 +44,9 @@ const emit = defineEmits(["start"])
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(0,0,0,0.1); /* subtle dim for contrast */
+  background: rgba(0,0,0,0.1); 
 }
 
-/* Content Container */
 .game-content {
   text-align: center;
   max-width: 800px;
@@ -58,6 +56,7 @@ const emit = defineEmits(["start"])
   align-items: center;
   gap: 2.5rem;
 }
+
 .title-icon {
   width: 80px;
   height: 80px;
@@ -71,31 +70,26 @@ const emit = defineEmits(["start"])
   50% { filter: drop-shadow(0 0 20px #FFD700); }
   100% { filter: drop-shadow(0 0 5px #FFD700); }
 }
-/* Trophy bounce animation */
 @keyframes trophyBounce {
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(-10px); }
 }
 
-
-
-/* Game Title */
 .game-title h1 {
   font-family: 'Bangers', cursive;
   font-size: clamp(3rem, 8vw, 5rem);
   margin: 0;
-  color: #222; /* strong contrast on yellow */
+  color: #222;
 
   text-shadow:
-    2px 2px 0px #fff,                /* white outline for readability */
-    0 0 15px rgba(255, 215, 0, 0.8); /* subtle golden glow */
+    2px 2px 0px #fff,
+    0 0 15px rgba(255, 215, 0, 0.8); 
 
   letter-spacing: 3px;
   text-transform: uppercase;
   animation: titlePulse 2.5s ease-in-out infinite;
 }
 
-/* Subtitle */
 .subtitle {
   font-size: clamp(1.2rem, 3vw, 1.5rem);
   color: #fff;
@@ -103,37 +97,27 @@ const emit = defineEmits(["start"])
   letter-spacing: 1px;
 }
 
-.new-btn {
-  font-family: 'Poppins', sans-serif;
-  font-size: 1.4rem;
-  font-weight: 700;
-  padding: 1rem 2.5rem;
+.start-btn {
+  font-size: 1.4rem;  
   border: none;
   border-radius: 14px;
-  background: linear-gradient(135deg, #FF6B35, #FFD700); /* warm orange-gold */
-  color: #222; /* dark text for readability */
   text-transform: uppercase;
   letter-spacing: 2px;
-  cursor: pointer;
-  box-shadow: 0 5px 15px rgba(255, 193, 7, 0.6);
-  transition: all 0.25s ease-in-out;
   position: relative;
   overflow: hidden;
 }
 
-/* Hover / active effect */
-.new-btn:hover {
+.start-btn:hover {
   transform: scale(1.1) translateY(-2px);
   box-shadow: 0 8px 20px rgba(255, 193, 7, 0.8);
 }
 
-/* Optional glow pulse animation */
 @keyframes btnGlow {
   0%, 100% { box-shadow: 0 5px 15px rgba(255, 193, 7, 0.6); }
   50%      { box-shadow: 0 8px 25px rgba(255, 215, 0, 0.9); }
 }
 
-.new-btn {
+.start-btn {
   animation: btnGlow 2s infinite;
 }
 

@@ -3,7 +3,7 @@
     <div class="round-header" :class="{ 'highlighted': isNextRoundReady }">
       <h2 :class="{ 'highlighted': isNextRoundReady }">{{ getOrdinalNumber(currentRound) }} Lap ({{
         currentRoundData?.distance }}m)</h2>
-      <Button class="start-round-btn" :class="{ 'highlighted': isNextRoundReady }"
+      <Button class="start-round-btn" variant="secondary" :class="{ 'highlighted': isNextRoundReady }"
         :disabled="raceStarted && !isRaceComplete" @click="startRound()">
         ▶ Start Round </Button>
     </div>
@@ -87,7 +87,8 @@
     </Modal>
 
     <!-- Race Complete Modal - Full Screen with 6 Round Tables -->
-    <Modal v-if="isRaceComplete && showRaceCompleteModal" @close="closeRaceCompleteModal" class="race-complete-modal fullscreen">
+    <Modal v-if="isRaceComplete && showRaceCompleteModal" @close="closeRaceCompleteModal"
+      class="race-complete-modal fullscreen">
       <template #title>
         🏆 Race Complete! 🏆
       </template>
@@ -97,8 +98,8 @@
         <div class="winners-section">
           <h3 class="winners-title">🏆 Top 3 Champions</h3>
           <div class="winners-podium">
-            <div v-for="(winner, index) in topThreeWinners" :key="winner.id" 
-                 class="winner-card" :class="`position-${index + 1}`">
+            <div v-for="(winner, index) in topThreeWinners" :key="winner.id" class="winner-card"
+              :class="`position-${index + 1}`">
               <div class="winner-medal">
                 <span v-if="index === 0">🥇</span>
                 <span v-else-if="index === 1">🥈</span>
@@ -133,12 +134,11 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="(horse, index) in round.results" :key="horse.id" 
-                        class="result-row" :class="{
-                          'podium-1': index === 0,
-                          'podium-2': index === 1,
-                          'podium-3': index === 2
-                        }">
+                    <tr v-for="(horse, index) in round.results" :key="horse.id" class="result-row" :class="{
+                      'podium-1': index === 0,
+                      'podium-2': index === 1,
+                      'podium-3': index === 2
+                    }">
                       <td class="position-cell">
                         <div class="position-badge" :class="{
                           'gold': index === 0,
@@ -277,7 +277,7 @@ const allHorsesFinished = computed(() => {
 const isRaceComplete = computed(() => {
   // Check if we have rounds and all rounds are completed
   if (!props.rounds.length) return false
-  
+
   // All rounds must be completed
   return props.rounds.every(round => round.isCompleted)
 })
@@ -482,7 +482,7 @@ const resetLocalState = () => {
 const nextRound = () => {
   // Store current round results before moving to next
   storeRoundResults()
-  
+
   const currentRound = computed(() => store.getters['race/currentRound'])
   const rounds = computed(() => store.getters['race/rounds'])
 
@@ -542,11 +542,11 @@ const topThreeWinners = computed(() => {
           roundCount: 0
         })
       }
-      
+
       const stats = horseStats.get(horse.id)!
       stats.roundCount++
       stats.totalTime += parseTime(horse.finishTime)
-      
+
       // Count wins (1st place)
       if (index === 0) {
         stats.wins++
@@ -589,7 +589,7 @@ const restartRace = () => {
   finishedHorses.value = []
   showRaceCompleteModal.value = false
   showRoundCompleteModal.value = false
-  
+
   // Reset race state
   store.dispatch('race/resetRace')
   store.dispatch('race/generateRaceProgram')
@@ -682,30 +682,52 @@ onUnmounted(() => {
   margin: 0;
 }
 
-/* Put button on the right side */
-.round-header .start-round-btn {
+
+
+
+.round-header .start-round-btn{
   position: absolute;
   right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: bold;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-
-  background: linear-gradient(135deg, #ff512f 0%, #dd2476 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  transition: all 0.2s ease;
+  background: linear-gradient(45deg, #FF6B35, #FFD700, #FF6B35);
+  background-size: 400% 400%;
+  color: #222;
+  box-shadow: 0 5px 15px rgba(255, 193, 7, 0.6);
+  transition: all 0.25s ease-in-out;
+  overflow: hidden;
+  animation: glowingDiagonal 3s linear infinite; /* base gradient animation */
 }
 
-.round-header .start-round-btn:hover {
-  transform: translateY(-50%) scale(1.05);
-  box-shadow: 0 6px 20px rgba(255, 81, 47, 0.5);
+/* Diagonal glowing gradient animation */
+@keyframes glowingDiagonal {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+  100% { background-position: 0% 0%; }
 }
+
+/* Diagonal shine effect using pseudo-element */
+.round-header .start-round-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(45deg) translateX(-200%);
+  transition: transform 0.6s ease;
+  pointer-events: none;
+}
+
+.round-header .start-round-btn:hover::after {
+  transform: rotate(45deg) translateX(200%);
+}
+
+/* Hover scale and shadow */
+.round-header .start-round-btn:hover:not(.is-disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.8);
+}
+
 
 .race-track {
   padding: 20px;
@@ -713,7 +735,7 @@ onUnmounted(() => {
   height: 87%;
   display: flex;
   flex-direction: column;
-  align-items: center; 
+  align-items: center;
   justify-content: center;
 }
 
@@ -1540,7 +1562,8 @@ onUnmounted(() => {
   margin-top: 30px;
 }
 
-.restart-btn, .close-btn {
+.restart-btn,
+.close-btn {
   padding: 15px 30px;
   font-size: 1.1rem;
   border-radius: 10px;
@@ -1576,37 +1599,37 @@ onUnmounted(() => {
     width: 98%;
     max-height: 95vh;
   }
-  
+
   .race-complete-content {
     padding: 20px;
   }
-  
+
   .winners-title {
     font-size: 2rem;
   }
-  
+
   .winners-podium {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .winner-card.position-1 {
     order: 1;
     transform: none;
   }
-  
+
   .winner-card.position-2 {
     order: 2;
   }
-  
+
   .winner-card.position-3 {
     order: 3;
   }
-  
+
   .rounds-container {
     grid-template-columns: 1fr;
   }
-  
+
   .race-complete-actions {
     flex-direction: column;
     align-items: center;
@@ -1775,27 +1798,27 @@ onUnmounted(() => {
   .round-table-card {
     padding: 15px;
   }
-  
+
   .round-table-header h4 {
     font-size: 1.1rem;
   }
-  
+
   .round-results-table th,
   .round-results-table td {
     padding: 8px 6px;
     font-size: 11px;
   }
-  
+
   .position-badge {
     width: 20px;
     height: 20px;
     font-size: 10px;
   }
-  
+
   .horse-name {
     font-size: 11px;
   }
-  
+
   .finish-time,
   .speed-value {
     font-size: 10px;
@@ -1804,21 +1827,21 @@ onUnmounted(() => {
 }
 
 @media (max-width: 480px) {
+
   .round-results-table th,
   .round-results-table td {
     padding: 6px 4px;
     font-size: 10px;
   }
-  
+
   .round-results-table th {
     font-size: 9px;
   }
-  
+
   .position-badge {
     width: 18px;
     height: 18px;
     font-size: 9px;
   }
 }
-
 </style>

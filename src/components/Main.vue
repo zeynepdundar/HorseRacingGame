@@ -3,8 +3,8 @@
     <!-- Setup Actions -->
     <section v-if="!setupComplete" class="game-setup">
       <div class="game-actions">
-        <Button @click="setupRace" class="setup-race-btn">Setup Race</Button>
-        <Button @click="refreshHorses" class="refresh-btn">Refresh Horses</Button>
+        <Button @click="setupRace">Setup Race</Button>
+        <Button @click="refreshHorses" variant="secondary">Refresh Horses</Button>
       </div>
 
       <!-- Horses List -->
@@ -119,35 +119,8 @@ function handleScrollToNextRound(roundNumber: number) {
     flex-wrap: wrap;
   }
 
-  .setup-race-btn {
-    background: linear-gradient(135deg, #4CAF50, #45a049);
-    color: white;
-    font-weight: 600;
-    padding: 12px 24px;
-    font-size: 1rem;
-    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-    transition: all 0.3s ease;
-  }
 
-  .setup-race-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
-  }
 
-  .refresh-btn {
-    background: linear-gradient(135deg, #FF9800, #F57C00);
-    color: white;
-    font-weight: 600;
-    padding: 12px 24px;
-    font-size: 1rem;
-    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
-    transition: all 0.3s ease;
-  }
-
-  .refresh-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
-  }
 
   /* Horses List Section */
   .horse-list-section {
