@@ -1,12 +1,12 @@
 <template>
   <header>
-    <img :src="logo" alt="Logo" />
+    <!--<img :src="logo" alt="Logo" />-->
     <h1>{{ title }}</h1>
   </header>
 </template>
 
 <script setup>
-import logo from '../../assets/logo.png'
+//import logo from '../../assets/logo.png'
 
 defineProps({
   title: {

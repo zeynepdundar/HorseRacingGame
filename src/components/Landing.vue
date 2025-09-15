@@ -8,12 +8,13 @@ const emit = defineEmits(["start"])
   <div class="landing">
     <div class="overlay">
       <div class="game-content">
+        <img src="../assets/trophy.png" alt="Trophy" class="title-icon">
         <div class="game-title">
           <h1>Horse Racing</h1>
           <p class="subtitle">Get ready for the ultimate race of glory!</p>
         </div>
         <div class="game-actions">
-          <Button class="start-btn" @click="emit('start')">▶ Start the Race!</Button>
+          <Button class="new-btn" @click="emit('start')">▶ Start the Race!</Button>
         </div>
       </div>
     </div>
@@ -21,27 +22,21 @@ const emit = defineEmits(["start"])
 </template>
 
 <style scoped>
+/* Landing Section */
 .landing {
   position: relative;
   height: 100vh;
-  width: 100%;
+  width: 100vw;
   background:
-    url('../assets/gettyimages-165931562-612x612.jpg') no-repeat center center / cover,
-    linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    url('../assets/landing-bg.png') no-repeat center center / cover,
+    linear-gradient(135deg, rgba(255, 235, 59, 0.3), rgba(255, 193, 7, 0.3));
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
 }
 
-.landing::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, rgba(0,0,0,0.3), rgba(0,0,0,0.7));
-  z-index: 1;
-}
-
+/* Dark overlay for readability */
 .overlay {
   position: relative;
   height: 100%;
@@ -50,8 +45,10 @@ const emit = defineEmits(["start"])
   display: flex;
   justify-content: center;
   align-items: center;
+  background: rgba(0,0,0,0.1); /* subtle dim for contrast */
 }
 
+/* Content Container */
 .game-content {
   text-align: center;
   max-width: 800px;
@@ -59,71 +56,85 @@ const emit = defineEmits(["start"])
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3rem;
+  gap: 2.5rem;
+}
+.title-icon {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+  animation: trophyGlow 2s infinite alternate, trophyBounce 2s infinite ease-in-out;
 }
 
+@keyframes trophyGlow {
+  0% { filter: drop-shadow(0 0 5px #FFD700); }
+  50% { filter: drop-shadow(0 0 20px #FFD700); }
+  100% { filter: drop-shadow(0 0 5px #FFD700); }
+}
+/* Trophy bounce animation */
+@keyframes trophyBounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+
+
+
+/* Game Title */
 .game-title h1 {
-  font-family: 'Press Start 2P', cursive, sans-serif;
-  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-family: 'Bangers', cursive;
+  font-size: clamp(3rem, 8vw, 5rem);
   margin: 0;
-  color: #ffd700;
-  text-shadow: 3px 3px 0px #ff6b35,
-               6px 6px 0px rgba(0, 0, 0, 0.5),
-               0 0 25px rgba(255, 215, 0, 0.7);
+  color: #222; /* strong contrast on yellow */
+
+  text-shadow:
+    2px 2px 0px #fff,                /* white outline for readability */
+    0 0 15px rgba(255, 215, 0, 0.8); /* subtle golden glow */
+
   letter-spacing: 3px;
-  animation: titleGlow 2s ease-in-out infinite alternate;
+  text-transform: uppercase;
+  animation: titlePulse 2.5s ease-in-out infinite;
 }
 
+/* Subtitle */
 .subtitle {
-  font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+  font-size: clamp(1.2rem, 3vw, 1.5rem);
   color: #fff;
-  font-weight: bold;
-  text-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
-  animation: fadeIn 2s ease-in-out infinite alternate;
+  text-shadow: 2px 2px 0 #222;
+  letter-spacing: 1px;
 }
 
-.start-btn {
-  font-size: 1.5rem;
+.new-btn {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
   padding: 1rem 2.5rem;
-  background: linear-gradient(135deg, #ff6b35, #ffd700);
-  border-radius: 12px;
-  color: #222;
-  font-weight: bold;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #FF6B35, #FFD700); /* warm orange-gold */
+  color: #222; /* dark text for readability */
   text-transform: uppercase;
   letter-spacing: 2px;
-  animation: buttonPulse 1.5s infinite;
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(255, 193, 7, 0.6);
+  transition: all 0.25s ease-in-out;
+  position: relative;
+  overflow: hidden;
 }
 
-.start-btn:hover {
-  transform: scale(1.1) rotate(-2deg);
-  box-shadow: 0 0 30px rgba(255, 107, 53, 0.9);
+/* Hover / active effect */
+.new-btn:hover {
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 193, 7, 0.8);
 }
 
-
-/* Animations */
-@keyframes titleGlow {
-  from { text-shadow: 3px 3px 0px #ff6b35, 0 0 20px #ffd700; }
-  to   { text-shadow: 3px 3px 0px #ff6b35, 0 0 40px #ffd700, 0 0 60px #ff6b35; }
+/* Optional glow pulse animation */
+@keyframes btnGlow {
+  0%, 100% { box-shadow: 0 5px 15px rgba(255, 193, 7, 0.6); }
+  50%      { box-shadow: 0 8px 25px rgba(255, 215, 0, 0.9); }
 }
 
-@keyframes buttonPulse {
-  0%, 100% { transform: scale(1.05); }
-  50%      { transform: scale(1.15); }
+.new-btn {
+  animation: btnGlow 2s infinite;
 }
 
-
-
-@keyframes fadeIn {
-  from { opacity: 0.7; }
-  to   { opacity: 1; }
-}
-
-/* Mobile tweaks */
-@media (max-width: 768px) {
-  .game-content { gap: 2rem; }
-  .game-title h1 { font-size: clamp(2rem, 7vw, 4rem); }
-  .subtitle { font-size: 1rem; }
-  .start-btn { font-size: 1.2rem; padding: 0.8rem 2rem; }
-}
 </style>

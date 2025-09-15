@@ -30,7 +30,7 @@ defineProps({
 
 .main-content {
   flex: 1;
-  background-image: url('/images/racing-track.png');
+  /*background-image: url('/images/racing-track.png');*/
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
