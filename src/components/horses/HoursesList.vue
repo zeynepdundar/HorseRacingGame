@@ -24,7 +24,7 @@
         <!-- Condition column -->
         <div v-else-if="col.key === 'condition'" class="condition-cell">
           <div class="condition-progress">
-            <div class="condition-fill" :style="{ width: `${row.condition || 0}%`, backgroundColor: getConditionColor(row.condition || 0) }"></div>
+            <div class="condition-fill" :style="{ backgroundColor: getConditionColor(row.condition || 0) }"></div>
           </div>
           <span class="condition-percentage">{{ row.condition || 0 }}%</span>
         </div>

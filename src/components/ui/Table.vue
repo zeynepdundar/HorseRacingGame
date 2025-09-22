@@ -35,21 +35,27 @@ const hasRows = computed(() => props.rows && props.rows.length > 0)
     <div class="table-container" :style="{ '--max-height': maxHeight }">
       <table class="ui-table">
         <thead class="table-header">
-          <tr>
-            <th v-for="col in columns" :key="col.key"
-              :style="{ textAlign: 'left', width: col.width ? String(col.width) : undefined }">
-              {{ col.label }}
-            </th>
-          </tr>
+          <!-- Position column -->
+          <th style="width: 60px; text-align: center;">#</th>
+
+          <th v-for="col in columns" :key="col.key"
+            :style="{ textAlign: 'left', width: col.width ? String(col.width) : undefined }">
+            {{ col.label }}
+          </th>
         </thead>
       </table>
-      
+
       <div class="table-body-scroll" :style="{ maxHeight: '550px' }">
         <table class="ui-table">
           <tbody v-if="hasRows">
+
             <tr v-for="(row, rIdx) in rows" :key="getRowKey(row, rIdx)" class="ui-row">
+              <td style="text-align: center; font-weight: bold;">
+                {{ rIdx + 1 }}
+              </td>
               <td v-for="col in columns" :key="col.key" :style="{ textAlign: (col.align ?? 'left') as any }">
-                <slot name="cell" :row="row" :col="col" :value="col.formatter ? col.formatter(row[col.key], row, rIdx) : row[col.key]" :rowIndex="rIdx">
+                <slot name="cell" :row="row" :col="col"
+                  :value="col.formatter ? col.formatter(row[col.key], row, rIdx) : row[col.key]" :rowIndex="rIdx">
                   {{ col.formatter ? col.formatter(row[col.key], row, rIdx) : row[col.key] }}
                 </slot>
               </td>
@@ -70,25 +76,6 @@ const hasRows = computed(() => props.rows && props.rows.length > 0)
 </template>
 
 <style scoped>
-.table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-}
-
-.table-container {
-  display: flex;
-  flex-direction: column;
-  border-radius: 8px;
-  margin-top: 8px;
-  overflow: hidden;
-  box-shadow: 
-    0 4px 20px rgba(76, 175, 80, 0.15),
-    0 1px 4px rgba(0, 0, 0, 0.1);
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(76, 175, 80, 0.1);
-}
-
 .table-header {
   position: sticky;
   top: 0;
@@ -124,144 +111,98 @@ const hasRows = computed(() => props.rows && props.rows.length > 0)
 
 .ui-table {
   width: 100%;
-  border-collapse: collapse;
+  
+  border-collapse: separate;
+  /* satırlar arasında boşluk için */
+  border-spacing: 0 10px;
+  /* satırlar arası boşluk */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: white;
 }
 
+/* HEADER */
 .ui-table thead {
-  background: #2c3e50;
-  color: white;
+  background: transparent;
 }
 
 .ui-table th {
-  padding: 8px 10px;
-  text-align: left;
-  font-weight: 600;
-  font-size: 0.75rem;
+  padding: 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.3px;
+  text-align: left;
+  color: #222;
 }
 
-.ui-table tbody tr {
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.ui-table tbody tr:nth-child(even) {
-  background-color: rgba(76, 175, 80, 0.03);
-}
-
-.ui-table tbody tr:hover {
-  background-color: rgba(76, 175, 80, 0.08);
-  transition: background-color 0.2s ease;
-}
-
-.ui-table td {
-  padding: 6px 10px;
-  vertical-align: middle;
-}
-
-.empty {
+/* İlk header hücresi (# gibi) */
+.ui-table th:first-child {
+  background: #111;
+  color: #FFD700;
+  border: 2px solid #FFD700;
+  border-radius: 8px;
   text-align: center;
-  padding: 20px 10px;
-  color: #7f8c8d;
-  font-style: italic;
+  width: 50px;
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.6);
+}
+
+/* Diğer header hücreleri -> birleşik border kutusu */
+.ui-table th:not(:first-child) {
+  border-top: 2px solid #444;
+  border-bottom: 2px solid #444;
+  background: linear-gradient(135deg, #FF6B35, #FFD700);
+  color: #222;
+  font-weight: 600;
+}
+
+.ui-table th:nth-child(2) {
+  border-left: 2px solid #444;
+  border-radius: 8px 0 0 8px;
+}
+
+.ui-table th:last-child {
+  border-right: 2px solid #444;
+  border-radius: 0 8px 8px 0;
+}
+
+/* BODY ROWS */
+.ui-table td {
+  padding: 10px 15px;
   font-size: 0.85rem;
+  background: #2a2a2a;
+  color: #fff;
 }
 
-/* Horse avatar styles for when used in horse tables */
-.horse-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.horse-avatar {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  color: white;
+/* İlk sütun (# gibi) */
+.ui-table td:first-child {
+  background: #111;
+  border: 2px solid #FFD700;
+  border-radius: 8px;
+  text-align: center;
+  width: 50px;
   font-weight: bold;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.6);
 }
 
-.horse-name {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #2c3e50;
+/* Diğer hücreler -> ortak border kutusu */
+.ui-table td:not(:first-child) {
+  border-top: 2px solid #444;
+  border-bottom: 2px solid #444;
 }
 
-.color-indicator {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.ui-table td:nth-child(2) {
+  border-left: 2px solid #444;
+  border-radius: 8px 0 0 8px;
 }
 
-.color-dot {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 1px solid #ddd;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+.ui-table td:last-child {
+  border-right: 2px solid #444;
+  border-radius: 0 8px 8px 0;
 }
 
-.color-name {
-  font-size: 0.8rem;
-  color: #555;
-  text-transform: capitalize;
-  font-weight: 500;
-}
-
-.condition-display {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.condition-progress {
-  flex: 1;
-  height: 8px;
-  background: #ecf0f1;
-  border-radius: 4px;
-  overflow: hidden;
-  min-width: 80px;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.condition-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.4s ease;
-  position: relative;
-}
-
-.condition-fill::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-.condition-value {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #2c3e50;
-  white-space: nowrap;
-  min-width: 30px;
-  text-align: right;
+/* Condition sütunu highlight */
+.ui-table td:nth-child(4) {
+  font-weight: bold;
+  color: #FF6B35;
+  text-shadow: 1px 1px 0 #000;
 }
 </style>
