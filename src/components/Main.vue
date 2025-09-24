@@ -14,7 +14,7 @@
     <!-- Setup Complete Modal -->
     <Modal v-if="showModal" @close="closeModal">
       <template #title>Race Ready!</template>
-      <p>{{ selectedHorses.length }} random horses have been assigned to the rounds.</p>
+      <p>{{ rounds[0].selectedHorses.length }} random horses have been assigned to the rounds.</p>
       <p class="ready-text">Ready to start the race!</p>
     </Modal>
 
@@ -54,7 +54,6 @@ const store = useStore()
 // state
 const showModal = ref(false)
 const setupComplete = ref(false)
-const selectedHorses = ref<number[]>([])
 const raceScheduleRef = ref()
 
 // derived state
@@ -72,11 +71,6 @@ const columns = [
 
 // actions
 function setupRace() {
-  const allHorseIds = horses.value.map(h => h.id)
-  selectedHorses.value = [...allHorseIds]
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 10)
-
   store.dispatch('race/generateRaceProgram')
   showModal.value = true
   setupComplete.value = false

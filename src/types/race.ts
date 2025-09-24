@@ -5,5 +5,4 @@ export interface Race {
   currentRound: number
   raceScheduled?: boolean
   raceStarted?: boolean
-  selectedHorses?: { id: number; name: string; color: string; condition: number }[]
 }

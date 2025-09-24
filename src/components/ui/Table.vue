@@ -111,12 +111,8 @@ const hasRows = computed(() => props.rows && props.rows.length > 0)
 
 .ui-table {
   width: 100%;
-  
   border-collapse: separate;
-  /* satırlar arasında boşluk için */
-  border-spacing: 0 10px;
-  /* satırlar arası boşluk */
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  border-spacing: 2px 5px;
 }
 
 /* HEADER */
@@ -168,19 +164,17 @@ const hasRows = computed(() => props.rows && props.rows.length > 0)
 .ui-table td {
   padding: 10px 15px;
   font-size: 0.85rem;
-  background: #2a2a2a;
-  color: #fff;
+  background: rgba(255, 255, 255, 0.6); /* semi-transparent white */
+  color: #222; /* dark text for contrast */
+  backdrop-filter: blur(6px);
 }
 
 /* İlk sütun (# gibi) */
 .ui-table td:first-child {
-  background: #111;
-  border: 2px solid #FFD700;
   border-radius: 8px;
   text-align: center;
   width: 50px;
   font-weight: bold;
-  box-shadow: 0 0 6px rgba(255, 215, 0, 0.6);
 }
 
 /* Diğer hücreler -> ortak border kutusu */

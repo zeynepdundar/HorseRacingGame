@@ -8,7 +8,6 @@
         ▶ Start Round </Button>
     </div>
 
-
     <div class="track-container">
       <div class="track">
         <div class="start-line"></div>
@@ -174,7 +173,6 @@
       </div>
     </Modal>
 
-    <!-- Remove the simple race complete message -->
     <!-- <div v-if="isRaceComplete" class="race-complete">
       <h3>🎉 Yarış Tamamlandı!</h3>
       <p>Tüm turlar başarıyla tamamlandı.</p>
@@ -229,7 +227,6 @@ const finishedHorses = ref<Array<{
   position: number
 }>>([])
 
-// Add new reactive data
 const showRaceCompleteModal = ref(false)
 const allRoundResults = ref<Array<{
   distance: number
@@ -282,25 +279,18 @@ const isRaceComplete = computed(() => {
   return props.rounds.every(round => round.isCompleted)
 })
 
-// Format race time
-const formattedRaceTime = computed(() => {
-  const minutes = Math.floor(raceTime.value / 60)
-  const seconds = (raceTime.value % 60).toFixed(1)
-  return `${minutes}:${seconds.padStart(4, '0')}`
-})
-
 // Calculate horse speed based on condition and randomization
 const calculateHorseSpeed = (horse: Horse): number => {
   // Base speed multiplier based on condition (0-100, where 100 is best)
   const conditionMultiplier = (horse.condition || 50) / 100
 
-  // Much faster base speed range
-  const baseSpeedMin = 3.5  // Significantly increased from 1.2
-  const baseSpeedMax = 7.0  // Significantly increased from 2.8
+  // Base speed range
+  const baseSpeedMin = 3.5 
+  const baseSpeedMax = 7.0
 
   // Calculate base speed with condition influence
-  const conditionInfluence = 0.4 // Increased condition influence to 40%
-  const randomInfluence = 0.6    // Reduced random factor to 60% for more predictable but still random results
+  const conditionInfluence = 0.4
+  const randomInfluence = 0.6
 
   const baseSpeed = baseSpeedMin + (baseSpeedMax - baseSpeedMin) * conditionMultiplier
   const randomFactor = 0.7 + Math.random() * 0.6 // 0.7 to 1.3 multiplier (wider range)
@@ -375,8 +365,6 @@ const updateHorsePositions = () => {
 }
 
 const startRound = () => {
-  console.log("data", currentRoundData)
-
   // Just start the race for the current round that's already prepared
   // Don't call store.dispatch('race/startRace') as it resets to round 1
   store.commit('race/setRaceStarted', true)
@@ -451,10 +439,6 @@ const prepareNextRound = () => {
     // Update current round in store
     store.commit('race/setCurrentRound', next)
 
-    // Update selected horses for the new round
-    const horses = rounds.value[next - 1]?.selectedHorses || []
-    store.commit('race/setSelectedHorse', horses)
-
     // Reset local state for the new round
     resetLocalState()
   } else {
@@ -462,9 +446,6 @@ const prepareNextRound = () => {
     store.commit('race/setRaceStarted', false)
   }
 }
-
-
-
 
 // Reset local state for next round (renamed to avoid confusion)
 const resetLocalState = () => {
@@ -477,45 +458,9 @@ const resetLocalState = () => {
   showRoundCompleteModal.value = false
   isNextRoundReady.value = false
   initializeHorses()
-}
 
-const nextRound = () => {
-  // Store current round results before moving to next
-  storeRoundResults()
-
-  const currentRound = computed(() => store.getters['race/currentRound'])
-  const rounds = computed(() => store.getters['race/rounds'])
-
-  // Calculate next round
-  const next = currentRound.value + 1
-
-  if (next <= rounds.value.length) {
-    // Update current round in store
-    store.commit('race/setCurrentRound', next)
-
-    // Update selected horses for the new round
-    const horses = rounds.value[next - 1]?.selectedHorses || []
-    store.commit('race/setSelectedHorse', horses)
-  } else {
-    // End race
-    store.commit('race/setRaceStarted', false)
-  }
-  store.dispatch('race/nextRound')
-
-}
-
-
-// Reset race
-const resetRace = () => {
-  finishedHorses.value = []
-  raceTime.value = 0
-  horsePositions.value = {}
-  horseSpeeds.value = {}
-  horseFinishTimes.value = {}
-  showRoundCompleteModal.value = false
-  isNextRoundReady.value = false
-  initializeHorses()
-  store.dispatch('race/resetRace')
+  // Reset race
+  // store.dispatch('race/resetRace')
 }
 
 const topThreeWinners = computed(() => {

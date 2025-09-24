@@ -14,7 +14,6 @@ export default {
   namespaced: true,
   state,
   getters: {
-    selectedHorses: (state: Race) => state.selectedHorses || [],
     raceScheduled: (state: Race) => !!state.raceScheduled,
     raceStarted: (state: Race) => !!state.raceStarted,
     currentRound: (state: Race) => state.currentRound,
@@ -24,9 +23,7 @@ export default {
     setRounds(state: Race, rounds: Round[]) {
       state.rounds = rounds;
     },
-    setSelectedHorse(state: Race, horses: Horse[]) {
-     //state.selectedHorses = horses;
-    },
+
     setRaceStarted(state: Race, started: boolean) {
       state.raceStarted = started;
     },
@@ -67,8 +64,6 @@ export default {
       });
 
       commit("setRounds", rounds);
-      // İlk turu ekranda göstermek için seçili atları ve tur numarasını ayarla
-      commit("setSelectedHorse", rounds[0]?.selectedHorses || []);
       commit("setCurrentRound", 1);
     },
     resetRace({ commit }) {
@@ -84,9 +79,6 @@ export default {
       // Initialize to the first round
       commit("setCurrentRound", 1);
     
-      // Select horses for the first round
-      const firstRoundHorses = state.rounds[0]?.selectedHorses || [];
-      commit("setSelectedHorse", firstRoundHorses);
     },
     nextRound({ state, commit }) {
       if (!state.rounds.length || !state.raceStarted) return;
@@ -97,8 +89,7 @@ export default {
       // If there is a round after the current one, select its horses
       const nextRoundIndex = state.currentRound; // component will increment currentRound
       if (nextRoundIndex < state.rounds.length) {
-        const selectedHorses = state.rounds[nextRoundIndex]?.selectedHorses || [];
-        commit("setSelectedHorse", selectedHorses);
+
       } else {
         // Race finished
         commit("setRaceStarted", false);
