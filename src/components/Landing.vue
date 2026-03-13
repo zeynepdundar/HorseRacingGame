@@ -1,124 +1,307 @@
 <script setup>
-import Button from './ui/Button.vue';
+import { Motion } from "@motionone/vue"
+import { Play, Trophy, Sparkles, Swords, Zap } from "lucide-vue-next"
 
 const emit = defineEmits(["start"])
 </script>
 
 <template>
-  <div class="landing">
-    <div class="overlay">
-      <div class="game-content">
-        <img src="../assets/trophy.png" alt="Trophy" class="title-icon">
-        <div class="game-title">
-          <h1>Horse Racing</h1>
-          <p class="subtitle">Get ready for the ultimate race of glory!</p>
+  <section class="hero">
+    <!-- Background -->
+    <div class="bg-layer">
+      <div class="dots top-left"></div>
+      <div class="dots bottom-right"></div>
+
+      <!-- Rotating Circle -->
+      <Motion :animate="{ rotate: 360 }" :transition="{ duration: 20, repeat: Infinity, easing: 'linear' }"
+        class="rotating-circle" />
+
+      <!-- Floating Triangle -->
+      <Motion :animate="{ y: [0, -20, 0], rotate: [0, 10, 0] }" :transition="{ duration: 5, repeat: Infinity }"
+        class="floating-triangle" />
+
+      <!-- Pulsing Circle -->
+      <Motion :animate="{ scale: [1, 1.1, 1] }" :transition="{ duration: 3, repeat: Infinity }" class="pulsing-circle">
+        <div class="inner-circle"></div>
+      </Motion>
+    </div>
+
+    <!-- Content -->
+    <Motion :initial="{ opacity: 0, y: 30 }" :animate="{ opacity: 1, y: 0 }" :transition="{ duration: 0.6 }"
+      class="content">
+      <!-- Trophy -->
+      <Motion :animate="{ y: [0, -10, 0] }" :transition="{ duration: 2, repeat: Infinity, easing: 'ease-in-out' }"
+        class="trophy-wrapper">
+        <div class="trophy-container">
+          <div class="trophy-glow"></div>
+
+          <div class="trophy-box">
+            <Trophy :size="48" color="#FFD700" :stroke-width="2.5" />
+          </div>
         </div>
-        <div class="game-actions">
-          <Button class="start-btn" variant="secondary" @click="emit('start')">▶ Start the Race!</Button>
+      </Motion>
+
+
+      <h1 class="hero-title">
+        <span>Horse</span>
+        <span>Racing</span>
+      </h1>
+      <div class="description">
+        <p>
+          Get ready for the ultimate race of glory!
+        </p>
+      </div>
+
+      <!-- Button -->
+      <Motion
+  :hover="{ scale: 1.05 }"
+  :press="{ scale: 0.95 }"
+  class="start-btn-wrapper"
+  @click="emit('start')"
+> 
+        <button class="start-btn">
+          <Play :size="26" />
+          <span>Start the Race!</span>
+        </button>
+      </Motion>
+
+      <!-- Features -->
+      <div class="features">
+        <div>
+          <Zap :size="20" />
+          <span>High Speed</span>
+        </div>
+        <div>
+          <Swords :size="20" />
+          <span>Competitive</span>
+        </div>
+        <div>
+          <Sparkles :size="20" />
+          <span>Realistic Physics</span>
         </div>
       </div>
-    </div>
-  </div>
+    </Motion>
+
+    <div class="bottom-gradient"></div>
+  </section>
 </template>
 
 <style scoped>
-
-.landing {
+.hero {
   position: relative;
-  height: 100vh;
-  width: 100vw;
-  background:
-    url('../assets/landing-bg.png') no-repeat center center / cover,
-    linear-gradient(135deg, rgba(255, 235, 59, 0.3), rgba(255, 193, 7, 0.3));
+  min-height: 100vh;
+  background: #FFD700;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-family: sans-serif;
+}
+
+/* Background */
+
+.bg-layer {
+  position: absolute;
+  inset: 0;
   overflow: hidden;
 }
 
-.overlay {
-  position: relative;
-  height: 100%;
-  width: 100%;
-  z-index: 2;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(0,0,0,0.1); 
-}
-
-.game-content {
-  text-align: center;
-  max-width: 800px;
-  padding: 20px;
+.hero-title {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2.5rem;
-}
-
-.title-icon {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
-  margin-bottom: 1rem;
-  animation: trophyGlow 2s infinite alternate, trophyBounce 2s infinite ease-in-out;
-}
-
-@keyframes trophyGlow {
-  0% { filter: drop-shadow(0 0 5px #FFD700); }
-  50% { filter: drop-shadow(0 0 20px #FFD700); }
-  100% { filter: drop-shadow(0 0 5px #FFD700); }
-}
-@keyframes trophyBounce {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-10px); }
-}
-
-.game-title h1 {
-  font-family: 'Bangers', cursive;
-  font-size: clamp(3rem, 8vw, 5rem);
-  margin: 0;
-  color: #222;
-
-  text-shadow:
-    2px 2px 0px #fff,
-    0 0 15px rgba(255, 215, 0, 0.8); 
-
-  letter-spacing: 3px;
+  font-size: 3.75rem;
+  font-weight: 900;
+  line-height: 1;
+  /* font-black */
+  color: black;
+  /* text-black */
   text-transform: uppercase;
-  animation: titlePulse 2.5s ease-in-out infinite;
+  /* uppercase */
+  font-style: italic;
+  /* italic */
+  letter-spacing: -0.05em;
+  /* tracking-tighter */
+  margin-bottom: 1rem;
+  /* mb-4 */
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
+  /* drop-shadow-sm */
+}
+
+/* md:text-9xl (responsive) */
+@media (min-width: 768px) {
+  .hero-title {
+    font-size: 6rem;
+    /* text-9xl = 128px */
+  }
+}
+
+
+.description {
+  margin: 25px 0 50px;
+  max-width: 700px;
+}
+
+.description p {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.85);
+  margin: 10px 0;
+  line-height: 1.6;
+}
+
+
+.dots {
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  opacity: 0.2;
+  background-image: radial-gradient(circle, black 2px, transparent 2px);
+  background-size: 24px 24px;
+}
+
+.top-left {
+  top: 0;
+  left: 0;
+}
+
+.bottom-right {
+  bottom: 0;
+  right: 0;
+}
+
+.rotating-circle {
+  position: absolute;
+  top: 80px;
+  right: 10%;
+  width: 120px;
+  height: 120px;
+  border: 8px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+}
+
+.floating-triangle {
+  position: absolute;
+  bottom: 150px;
+  left: 15%;
+  width: 0;
+  height: 0;
+  border-left: 40px solid transparent;
+  border-right: 40px solid transparent;
+  border-bottom: 70px solid rgba(0, 0, 0, 0.1);
+}
+
+.pulsing-circle {
+  position: absolute;
+  top: 20%;
+  left: 5%;
+  width: 90px;
+  height: 90px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inner-circle {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+}
+
+/* Content */
+
+.content {
+  position: relative;
+  text-align: center;
+  z-index: 2;
+  max-width: 900px;
+}
+
+.trophy-wrapper {
+  margin-bottom: 30px;
+}
+
+.trophy-box {
+  background: black;
+  padding: 16px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  display: inline-flex;
+}
+
+h1 {
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 900;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: -2px;
 }
 
 .subtitle {
-  font-size: clamp(1.2rem, 3vw, 1.5rem);
-  color: #fff;
-  text-shadow: 2px 2px 0 #222;
-  letter-spacing: 1px;
+  font-size: 1.4rem;
+  margin: 20px 0 50px;
+  font-weight: bold;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+/* Button */
+
+.start-btn-wrapper {
+  display: inline-block;
+  margin-bottom: 60px;
 }
 
 .start-btn {
-  font-size: 1.4rem;  
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 18px 50px;
+  font-size: 1.4rem;
+  font-weight: 900;
   border: none;
   border-radius: 14px;
+  cursor: pointer;
+  background: linear-gradient(45deg, #ff6a00, #ffb300);
+  color: black;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  position: relative;
-  overflow: hidden;
+  transition: 0.3s;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
 }
 
 .start-btn:hover {
-  transform: scale(1.1) translateY(-2px);
-  box-shadow: 0 8px 20px rgba(255, 193, 7, 0.8);
+  transform: translateY(-3px);
 }
 
-@keyframes btnGlow {
-  0%, 100% { box-shadow: 0 5px 15px rgba(255, 193, 7, 0.6); }
-  50%      { box-shadow: 0 8px 25px rgba(255, 215, 0, 0.9); }
+/* Features */
+
+.features {
+  display: flex;
+  gap: 60px;
+  justify-content: center;
+  opacity: 0.75;
 }
 
-.start-btn {
-  animation: btnGlow 2s infinite;
+.features div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  gap: 6px;
 }
 
+/* Bottom Fade */
+
+.bottom-gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.2), transparent);
+}
 </style>
