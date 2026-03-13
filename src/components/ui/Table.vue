@@ -31,123 +31,98 @@ const hasRows = computed(() => props.rows && props.rows.length > 0)
 </script>
 
 <template>
-  <div class="table-wrapper">
-    <div class="table-container" :style="{ '--max-height': maxHeight }">
-      <table class="ui-table">
-        <thead class="table-header">
-          <!-- Position column -->
-          <th style="width: 60px; text-align: center;">#</th>
+  <div class="table-wrapper" :style="{ maxHeight: maxHeight || '550px' }">
+    <table class="ui-table">
+      <!-- Shared column widths — both thead and tbody use this -->
+      <colgroup>
+        <col style="width: 50px" />
+        <col v-for="col in columns" :key="col.key"
+          :style="{ width: col.width ? col.width + 'px' : undefined }" />
+      </colgroup>
 
+      <thead>
+        <tr>
+          <th class="col-index">#</th>
           <th v-for="col in columns" :key="col.key"
-            :style="{ textAlign: 'left', width: col.width ? String(col.width) : undefined }">
+            :style="{ textAlign: (col.align ?? 'left') as any }">
             {{ col.label }}
           </th>
-        </thead>
-      </table>
+        </tr>
+      </thead>
 
-      <div class="table-body-scroll" :style="{ maxHeight: '550px' }">
-        <table class="ui-table">
-          <tbody v-if="hasRows">
+      <tbody v-if="hasRows">
+        <tr v-for="(row, rIdx) in rows" :key="getRowKey(row, rIdx)" class="ui-row">
+          <td class="col-index">{{ rIdx + 1 }}</td>
+          <td v-for="col in columns" :key="col.key"
+            :style="{ textAlign: (col.align ?? 'left') as any }">
+            <slot name="cell"
+              :row="row"
+              :col="col"
+              :value="col.formatter ? col.formatter(row[col.key], row, rIdx) : row[col.key]"
+              :rowIndex="rIdx">
+              {{ col.formatter ? col.formatter(row[col.key], row, rIdx) : row[col.key] }}
+            </slot>
+          </td>
+        </tr>
+      </tbody>
 
-            <tr v-for="(row, rIdx) in rows" :key="getRowKey(row, rIdx)" class="ui-row">
-              <td style="text-align: center; font-weight: bold;">
-                {{ rIdx + 1 }}
-              </td>
-              <td v-for="col in columns" :key="col.key" :style="{ textAlign: (col.align ?? 'left') as any }">
-                <slot name="cell" :row="row" :col="col"
-                  :value="col.formatter ? col.formatter(row[col.key], row, rIdx) : row[col.key]" :rowIndex="rIdx">
-                  {{ col.formatter ? col.formatter(row[col.key], row, rIdx) : row[col.key] }}
-                </slot>
-              </td>
-            </tr>
-          </tbody>
-
-          <tbody v-else>
-            <tr>
-              <td :colspan="columns.length" class="empty">
-                {{ emptyText ?? 'Kayıt bulunamadı.' }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+      <tbody v-else>
+        <tr>
+          <td :colspan="columns.length + 1" class="empty">
+            {{ emptyText ?? 'Kayıt bulunamadı.' }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
 <style scoped>
-.table-header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: linear-gradient(135deg, #2e7d32, #388e3c);
-  color: white;
-  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.3);
-}
-
-.table-body-scroll {
+/* ── Wrapper — scrolls vertically ──────────────────────── */
+.table-wrapper {
   overflow-y: auto;
   overflow-x: hidden;
-  flex: 1;
+  width: 100%;
 }
 
-.table-body-scroll::-webkit-scrollbar {
-  width: 6px;
+.table-wrapper::-webkit-scrollbar {
+  width: 4px;
+}
+.table-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 2px;
 }
 
-.table-body-scroll::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-
-.table-body-scroll::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
-}
-
-.table-body-scroll::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
-
+/* ── Table ─────────────────────────────────────────────── */
 .ui-table {
   width: 100%;
   border-collapse: separate;
-  border-spacing: 2px 5px;
+  border-spacing: 0 4px;
+  table-layout: fixed; /* colgroup widths are respected */
 }
 
-/* HEADER */
+/* ── Header — sticky ───────────────────────────────────── */
 .ui-table thead {
-  background: transparent;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .ui-table th {
-  padding: 12px;
-  font-size: 0.8rem;
+  padding: 10px 14px;
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
-  text-align: left;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
   color: #222;
-}
+  background: linear-gradient(135deg, #FF6B35, #FFD700);
 
-/* İlk header hücresi (# gibi) */
-.ui-table th:first-child {
-  background: #111;
-  color: #FFD700;
-  border: 2px solid #FFD700;
-  border-radius: 8px;
-  text-align: center;
-  width: 50px;
-  box-shadow: 0 0 6px rgba(255, 215, 0, 0.6);
-}
-
-/* Diğer header hücreleri -> birleşik border kutusu */
-.ui-table th:not(:first-child) {
   border-top: 2px solid #444;
   border-bottom: 2px solid #444;
-  background: linear-gradient(135deg, #FF6B35, #FFD700);
-  color: #222;
-  font-weight: 600;
 }
 
 .ui-table th:nth-child(2) {
@@ -160,25 +135,37 @@ const hasRows = computed(() => props.rows && props.rows.length > 0)
   border-radius: 0 8px 8px 0;
 }
 
-/* BODY ROWS */
-.ui-table td {
-  padding: 10px 15px;
-  font-size: 0.85rem;
-  background: rgba(255, 255, 255, 0.6); /* semi-transparent white */
-  color: #222; /* dark text for contrast */
+/* ── Index column ──────────────────────────────────────── */
+th.col-index {
+  background: #111;
+  color: #FFD700;
+  border: 2px solid #FFD700 !important;
+  border-radius: 8px !important;
+  text-align: center;
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.5);
+  letter-spacing: 0;
+}
+
+td.col-index {
+  text-align: center;
+  font-weight: bold;
+  color: #222;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 8px;
   backdrop-filter: blur(6px);
 }
 
-/* İlk sütun (# gibi) */
-.ui-table td:first-child {
-  border-radius: 8px;
-  text-align: center;
-  width: 50px;
-  font-weight: bold;
-}
+/* ── Body cells ────────────────────────────────────────── */
+.ui-table td {
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  color: #222;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(6px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
-/* Diğer hücreler -> ortak border kutusu */
-.ui-table td:not(:first-child) {
   border-top: 2px solid #444;
   border-bottom: 2px solid #444;
 }
@@ -193,10 +180,19 @@ const hasRows = computed(() => props.rows && props.rows.length > 0)
   border-radius: 0 8px 8px 0;
 }
 
-/* Condition sütunu highlight */
-.ui-table td:nth-child(4) {
-  font-weight: bold;
-  color: #FF6B35;
-  text-shadow: 1px 1px 0 #000;
+/* ── Hover ─────────────────────────────────────────────── */
+.ui-row:hover td {
+  background: rgba(255, 255, 255, 0.8) !important;
+  transition: background 0.12s ease;
+}
+
+/* ── Empty state ───────────────────────────────────────── */
+.empty {
+  text-align: center;
+  padding: 32px;
+  color: rgba(0, 0, 0, 0.35);
+  font-size: 0.85rem;
+  background: transparent !important;
+  border: none !important;
 }
 </style>
