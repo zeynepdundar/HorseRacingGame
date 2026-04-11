@@ -10,6 +10,6 @@ const started = ref(false)
 <template>
   <Landing v-if="!started" @start="started = true" />
   <Layout v-else title="Horse Racing">
-    <Main />
+    <Main @exit-to-landing="started = false" />
   </Layout>
 </template>

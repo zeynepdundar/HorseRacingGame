@@ -93,11 +93,11 @@
       </template>
 
       <div class="race-complete-content">
-        <!-- Top 3 Winners Section -->
+        <!-- Top 3 Fastest Section -->
         <div class="winners-section">
-          <h3 class="winners-title">🏆 Top 3 Champions</h3>
+          <h3 class="winners-title">🏁 Top 3 Fastest Horses</h3>
           <div class="winners-podium">
-            <div v-for="(winner, index) in topThreeWinners" :key="winner.id" class="winner-card"
+            <div v-for="(winner, index) in topThreeFastest" :key="winner.id" class="winner-card"
               :class="`position-${index + 1}`">
               <div class="winner-medal">
                 <span v-if="index === 0">🥇</span>
@@ -107,55 +107,9 @@
               <div class="winner-info">
                 <h4 class="winner-name">{{ winner.name }}</h4>
                 <p class="winner-stats">
-                  <span class="wins">{{ winner.wins }} Win{{ winner.wins !== 1 ? 's' : '' }}</span>
+                  <span class="wins">Best: {{ winner.bestTime }}</span>
                   <span class="avg-time">Avg: {{ winner.averageTime }}</span>
                 </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- All 6 Rounds Results in Tables -->
-        <div class="all-rounds-section">
-          <h3 class="rounds-title">📊 All 6 Rounds Results</h3>
-          <div class="rounds-tables-container">
-            <div v-for="(round, roundIndex) in allRoundResults" :key="roundIndex" class="round-table-card">
-              <div class="round-table-header">
-                <h4>Round {{ roundIndex + 1 }} ({{ round.distance }}m)</h4>
-              </div>
-              <div class="round-table-content">
-                <table class="round-results-table">
-                  <thead>
-                    <tr>
-                      <th class="position-header">#</th>
-                      <th class="horse-header">Horse</th>
-                      <th class="time-header">Time</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(horse, index) in round.results" :key="horse.id" class="result-row" :class="{
-                      'podium-1': index === 0,
-                      'podium-2': index === 1,
-                      'podium-3': index === 2
-                    }">
-                      <td class="position-cell">
-                        <div class="position-badge" :class="{
-                          'gold': index === 0,
-                          'silver': index === 1,
-                          'bronze': index === 2
-                        }">
-                          {{ index + 1 }}
-                        </div>
-                      </td>
-                      <td class="horse-cell">
-                        <span class="horse-name">{{ horse.name }}</span>
-                      </td>
-                      <td class="time-cell">
-                        <span class="finish-time">{{ horse.finishTime }}</span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
               </div>
             </div>
           </div>
@@ -200,6 +154,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   scrollToNextRound: [roundNumber: number]
+  exitToLanding: []
 }>()
 
 const store = useStore()
@@ -429,12 +384,12 @@ const prepareNextRound = () => {
   // Calculate next round
   const next = currentRound.value + 1
 
+  // Always mark the just-finished round as completed first.
+  store.commit('race/markRoundCompleted', currentRound.value)
+
   if (next <= rounds.value.length) {
     // IMPORTANT: Stop the current race first
     store.commit('race/setRaceStarted', false)
-
-    // Mark the current round as completed
-    store.commit('race/markRoundCompleted', currentRound.value)
 
     // Update current round in store
     store.commit('race/setCurrentRound', next)
@@ -442,7 +397,7 @@ const prepareNextRound = () => {
     // Reset local state for the new round
     resetLocalState()
   } else {
-    // End race
+    // Final round finished: stop race and let the completion watcher open the final modal.
     store.commit('race/setRaceStarted', false)
   }
 }
@@ -463,50 +418,48 @@ const resetLocalState = () => {
   // store.dispatch('race/resetRace')
 }
 
-const topThreeWinners = computed(() => {
+const topThreeFastest = computed(() => {
   const horseStats = new Map<
     number,
     {
       id: number
       name: string
-      wins: number
       totalTime: number
       roundCount: number
+      bestTime: number
     }
   >()
 
-  // Calculate stats for each horse across all rounds
   allRoundResults.value.forEach(round => {
-    round.results.forEach((horse, index) => {
+    round.results.forEach((horse) => {
+      const finishTime = parseTime(horse.finishTime)
+
       if (!horseStats.has(horse.id)) {
         horseStats.set(horse.id, {
           id: horse.id,
           name: horse.name,
-          wins: 0,
           totalTime: 0,
-          roundCount: 0
+          roundCount: 0,
+          bestTime: finishTime
         })
       }
 
       const stats = horseStats.get(horse.id)!
       stats.roundCount++
-      stats.totalTime += parseTime(horse.finishTime)
-
-      // Count wins (1st place)
-      if (index === 0) {
-        stats.wins++
-      }
+      stats.totalTime += finishTime
+      stats.bestTime = Math.min(stats.bestTime, finishTime)
     })
   })
 
-  // Convert to array and sort by wins, then by average time
   return Array.from(horseStats.values())
     .map(horse => ({
       ...horse,
-      averageTime: formatTime(horse.totalTime / horse.roundCount)
+      bestTimeValue: horse.bestTime,
+      averageTime: formatTime(horse.totalTime / horse.roundCount),
+      bestTime: formatTime(horse.bestTime)
     }))
     .sort((a, b) => {
-      if (b.wins !== a.wins) return b.wins - a.wins
+      if (a.bestTimeValue !== b.bestTimeValue) return a.bestTimeValue - b.bestTimeValue
       return a.totalTime - b.totalTime
     })
     .slice(0, 3)
@@ -525,6 +478,7 @@ const storeRoundResults = () => {
 // Add method to close race complete modal
 const closeRaceCompleteModal = () => {
   showRaceCompleteModal.value = false
+  emit('exitToLanding')
 }
 
 // Add method to restart race
@@ -1423,83 +1377,6 @@ onUnmounted(() => {
   opacity: 0.8;
 }
 
-.all-rounds-section {
-  margin-bottom: 30px;
-}
-
-.rounds-title {
-  font-size: 2rem;
-  text-align: center;
-  margin-bottom: 25px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.rounds-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-}
-
-.round-result-card {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 20px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.round-header h4 {
-  font-size: 1.2rem;
-  margin-bottom: 15px;
-  text-align: center;
-  color: #ffd700;
-}
-
-.round-podium {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.round-winner {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.round-winner.pos-1 {
-  background: linear-gradient(135deg, #ffd700, #ffed4e);
-  color: #333;
-}
-
-.round-winner.pos-2 {
-  background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
-  color: #333;
-}
-
-.round-winner.pos-3 {
-  background: linear-gradient(135deg, #cd7f32, #daa520);
-  color: #333;
-}
-
-.position-badge {
-  font-weight: bold;
-  min-width: 20px;
-}
-
-.horse-name {
-  flex: 1;
-  font-weight: 500;
-}
-
-.finish-time {
-  font-size: 0.9rem;
-  opacity: 0.8;
-}
-
 .race-complete-actions {
   display: flex;
   justify-content: center;
@@ -1571,222 +1448,9 @@ onUnmounted(() => {
     order: 3;
   }
 
-  .rounds-container {
-    grid-template-columns: 1fr;
-  }
-
   .race-complete-actions {
     flex-direction: column;
     align-items: center;
-  }
-}
-
-/* New styles for 6 round tables */
-.rounds-tables-container {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  margin-bottom: 30px;
-}
-
-.round-table-card {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 20px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: transform 0.3s ease;
-}
-
-.round-table-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-}
-
-.round-table-header h4 {
-  font-size: 1.3rem;
-  margin-bottom: 15px;
-  text-align: center;
-  color: #ffd700;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.round-results-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.round-results-table thead {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.round-results-table th {
-  padding: 12px 8px;
-  text-align: left;
-  font-weight: 600;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border: none;
-}
-
-.round-results-table tbody tr {
-  transition: all 0.3s ease;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.round-results-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateY(-1px);
-}
-
-.round-results-table tbody tr:last-child {
-  border-bottom: none;
-}
-
-.round-results-table td {
-  padding: 10px 8px;
-  vertical-align: middle;
-  border: none;
-  font-size: 12px;
-}
-
-/* Position badge styles */
-.position-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  font-weight: bold;
-  font-size: 11px;
-  color: white;
-  background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-.position-badge.gold {
-  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-  color: #8b6914;
-  box-shadow: 0 3px 8px rgba(255, 215, 0, 0.4);
-}
-
-.position-badge.silver {
-  background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
-  color: #5a5a5a;
-  box-shadow: 0 3px 8px rgba(192, 192, 192, 0.4);
-}
-
-.position-badge.bronze {
-  background: linear-gradient(135deg, #cd7f32 0%, #daa520 100%);
-  color: white;
-  box-shadow: 0 3px 8px rgba(205, 127, 50, 0.4);
-}
-
-/* Cell-specific styles */
-.horse-name {
-  font-weight: 600;
-  color: #fff;
-  font-size: 12px;
-}
-
-.finish-time {
-  font-family: 'Courier New', monospace;
-  font-weight: bold;
-  color: #4CAF50;
-  font-size: 11px;
-  background: rgba(76, 175, 80, 0.2);
-  padding: 4px 8px;
-  border-radius: 4px;
-  border: 1px solid rgba(76, 175, 80, 0.3);
-}
-
-.speed-value {
-  color: #81C784;
-  font-weight: 500;
-  font-size: 11px;
-  background: rgba(129, 199, 132, 0.2);
-  padding: 3px 6px;
-  border-radius: 4px;
-}
-
-/* Podium row special styling */
-.result-row.podium-1 {
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 237, 78, 0.2) 100%);
-  border-left: 3px solid #ffd700;
-}
-
-.result-row.podium-2 {
-  background: linear-gradient(135deg, rgba(192, 192, 192, 0.2) 0%, rgba(232, 232, 232, 0.2) 100%);
-  border-left: 3px solid #c0c0c0;
-}
-
-.result-row.podium-3 {
-  background: linear-gradient(135deg, rgba(205, 127, 50, 0.2) 0%, rgba(218, 165, 32, 0.2) 100%);
-  border-left: 3px solid #cd7f32;
-}
-
-/* Responsive design for tables */
-@media (max-width: 1200px) {
-  .rounds-tables-container {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 768px) {
-  .round-table-card {
-    padding: 15px;
-  }
-
-  .round-table-header h4 {
-    font-size: 1.1rem;
-  }
-
-  .round-results-table th,
-  .round-results-table td {
-    padding: 8px 6px;
-    font-size: 11px;
-  }
-
-  .position-badge {
-    width: 20px;
-    height: 20px;
-    font-size: 10px;
-  }
-
-  .horse-name {
-    font-size: 11px;
-  }
-
-  .finish-time,
-  .speed-value {
-    font-size: 10px;
-    padding: 2px 4px;
-  }
-}
-
-@media (max-width: 480px) {
-
-  .round-results-table th,
-  .round-results-table td {
-    padding: 6px 4px;
-    font-size: 10px;
-  }
-
-  .round-results-table th {
-    font-size: 9px;
-  }
-
-  .position-badge {
-    width: 18px;
-    height: 18px;
-    font-size: 9px;
   }
 }
 </style>

@@ -2,9 +2,13 @@
   <div class="main-container">
     <!-- Setup Actions -->
     <section v-if="!setupComplete" class="game-setup">
-      <div class="game-actions">
-        <Button @click="setupRace">Setup Race</Button>
-        <Button @click="refreshHorses" variant="secondary">Refresh Horses</Button>
+      <div class="setup-shell">
+        <div class="game-actions">
+          <Button @click="setupRace">Setup Race</Button>
+          <Button @click="refreshHorses" variant="secondary">Refresh Horses</Button>
+        </div>
+
+        <p class="setup-caption">Prepare the roster, review horse conditions, and launch the race.</p>
       </div>
 
       <!-- Horses List -->
@@ -26,6 +30,7 @@
           :current-round="currentRound" 
           :race-started="raceStarted" 
           @scroll-to-next-round="handleScrollToNextRound"
+          @exit-to-landing="handleExitToLanding"
         />
       </aside>
       <aside class="race-schedule-container">
@@ -50,6 +55,9 @@ import type { Horse } from '../types/horse'
 import Modal from './ui/Modal.vue'
 
 const store = useStore()
+const emit = defineEmits<{
+  exitToLanding: []
+}>()
 
 // state
 const showModal = ref(false)
@@ -91,21 +99,42 @@ function handleScrollToNextRound(roundNumber: number) {
     raceScheduleRef.value.scrollToRound(roundNumber)
   }
 }
+
+function handleExitToLanding() {
+  emit('exitToLanding')
+}
 </script>
 
 <style
   scoped>
   .main-container {
-    padding: 10px;
+    padding: 18px 14px;
     max-width: 1400px;
     margin: 0 auto;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     gap: 20px;
   }
 
-  /* Setup Buttons */
+  .game-setup {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .setup-shell {
+    align-self: center;
+    width: min(920px, 100%);
+    padding: 18px 20px 16px;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(15, 25, 45, 0.54);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.18);
+  }
+
   .game-actions {
     display: flex;
     gap: 12px;
@@ -113,18 +142,11 @@ function handleScrollToNextRound(roundNumber: number) {
     flex-wrap: wrap;
   }
 
-
-
-
-  /* Horses List Section */
-  .horse-list-section {
-    flex: 1;
-    max-height: 80vh;
-    overflow: hidden;
-    border-radius: 12px;
-    padding: 15px 20px;
-    backdrop-filter: blur(10px);
-    background: rgba(76, 175, 80, 0.05);
+  .setup-caption {
+    margin: 12px 0 0;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.68);
+    font-size: 0.88rem;
   }
 
   .ready-text {
@@ -160,6 +182,17 @@ function handleScrollToNextRound(roundNumber: number) {
 
     to {
       opacity: 1;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .main-container {
+      padding: 14px 10px;
+    }
+
+    .setup-shell {
+      padding: 14px;
+      border-radius: 20px;
     }
   }
 </style>

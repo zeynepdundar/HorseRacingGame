@@ -28,26 +28,30 @@ const variantClass = computed(() => `button--${props.variant}`)
 <style scoped>
 /* Base button */
 .button {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Segoe UI', sans-serif;
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem 2.5rem;
-  font-size: 1rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 10px;
+  padding: 0.95rem 1.8rem;
+  font-size: 0.95rem;
+  font-weight: 800;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
   cursor: pointer;
   transition: all 0.25s ease;
   user-select: none;
   color: #fff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
 }
 
 .button:hover:not(.is-disabled) {
-  transform: scale(1.05) translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 26px rgba(0, 0, 0, 0.22);
 }
 
 /* Disabled state */
@@ -62,35 +66,27 @@ const variantClass = computed(() => `button--${props.variant}`)
 
 /* Primary */
 .button--primary {
-  background: linear-gradient(135deg, #4CAF50, #45a049);
-  color: #fff;
+  background: linear-gradient(135deg, #9d9720, #bbaf20 58%, #e5dd76);
+  color: #2d3414;
+  border-color: rgba(59, 82, 144, 0.14);
 }
 
-.button--primary:hover:not(.is-disabled) {
-  /* same as base hover (scale + translate + shadow) */
-}
-
-/* Secondary */
 .button--secondary {
-  background: linear-gradient(135deg, #FF6B35, #FFD700);
-  color: #222;
-  transition: all 0.25s ease-in-out;
-}
-
-.button--secondary:hover:not(.is-disabled) {
-  /* same as base hover (scale + translate + shadow) */
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.24);
 }
 
 /* Start */
 .button--start {
-  background: linear-gradient(135deg, #FF6B35, #FFD700);
-  color: #222;
-  box-shadow: 0 5px 15px rgba(255, 193, 7, 0.6);
-  transition: all 0.25s ease-in-out;
+  background: linear-gradient(135deg, #9d9720, #bbaf20 58%, #e5dd76);
+  color: #2d3414;
+  border-color: rgba(59, 82, 144, 0.14);
+  box-shadow: 0 14px 28px rgba(114, 110, 28, 0.24);
 }
 
 .button--start:hover:not(.is-disabled) {
-  transform: scale(1.1) translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.8);
+  transform: translateY(-2px);
+  box-shadow: 0 18px 32px rgba(114, 110, 28, 0.28);
 }
 </style>

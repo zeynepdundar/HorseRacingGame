@@ -30,11 +30,9 @@ defineProps({
 
 .main-content {
   flex: 1;
-  background-image: url('/images/track-bg.jpg'); /* start with / for public folder */
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  background:
+    radial-gradient(circle at top, rgba(255, 225, 126, 0.18), transparent 28%),
+    linear-gradient(180deg, #1f3044 0%, #223852 36%, #bb7428 100%);
   width: 100%;
   position: relative;
 }
@@ -47,8 +45,9 @@ defineProps({
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(1px);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent),
+    linear-gradient(90deg, rgba(10, 18, 33, 0.06), rgba(10, 18, 33, 0.16));
   z-index: 1;
 }
 
