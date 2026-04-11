@@ -1,347 +1,526 @@
-<template>
-  <div class="horses-list-container">
-    <header class="game-header">
-      <div class="header-left">
-        <div class="header-icon">🏇</div>
-        <div class="header-text">
-          <h2>Racing Roster</h2>
-          <p class="subtitle">{{ horses.length }} horses</p>
-        </div>
-      </div>
-      <div class="header-badge">
-        <span class="badge-dot"></span>
-        Live
-      </div>
-    </header>
-
-    <Table :rows="horses" :columns="columns" maxHeight="550px">
-      <template #cell="{ row, col }">
-
-        <div v-if="col.key === 'horse'" class="horse-cell">
-          <div class="horse-avatar" :style="{ '--hc': row.color || '#4CAF50' }">
-            <span>🐎</span>
-          </div>
-          <div class="horse-info">
-            <span class="horse-name">{{ row.name }}</span>
-            <span class="horse-tag">#{{ String(row.id || '00').padStart(2, '0') }}</span>
-          </div>
-        </div>
-
-        <div v-else-if="col.key === 'color'" class="color-cell">
-          <div class="color-swatch" :style="{ '--sc': row.color || '#ccc' }"></div>
-          <span class="color-name">{{ getColorName(row.color) }}</span>
-        </div>
-
-        <div v-else-if="col.key === 'condition'" class="condition-cell">
-          <div class="condition-track">
-            <div
-              class="condition-fill"
-              :style="{
-                width: (row.condition || 0) + '%',
-                '--bc': getConditionColor(row.condition || 0)
-              }"
-            ></div>
-          </div>
-          <span class="condition-value" :style="{ color: getConditionColor(row.condition || 0) }">
-            {{ row.condition || 0 }}<span class="pct">%</span>
-          </span>
-        </div>
-
-        <span v-else class="default-cell">{{ row[col.key] }}</span>
-      </template>
-    </Table>
-  </div>
-</template>
-
 <script setup lang="ts">
-import Table from '../ui/Table.vue'
+import { computed, ref } from 'vue'
+import { Motion } from '@motionone/vue'
+import {
+  Trophy,
+  Search,
+  ChevronDown,
+  ChevronUp
+} from 'lucide-vue-next'
 import { getColorName, getConditionColor } from '../../utils/index.ts'
 import type { Horse } from '../../types/horse'
 
-interface Column {
-  key: string
-  label: string
-  width?: number
+type SortKey = 'name' | 'color' | 'condition' | null
+type SortOrder = 'asc' | 'desc'
+
+const props = defineProps<{
+  horses: Horse[]
+  columns?: Array<{ key: string; label: string; width?: number }>
+}>()
+
+const sortBy = ref<SortKey>(null)
+const sortOrder = ref<SortOrder>('asc')
+const searchTerm = ref('')
+
+function handleSort(column: Exclude<SortKey, null>) {
+  if (sortBy.value === column) {
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
+    return
+  }
+
+  sortBy.value = column
+  sortOrder.value = 'asc'
 }
 
-defineProps<{
-  horses: Horse[]
-  columns: Column[]
-}>()
+function getConditionLabel(condition?: number) {
+  const value = condition ?? 0
+  if (value >= 90) return 'Peak'
+  if (value >= 80) return 'Excellent'
+  if (value >= 65) return 'Strong'
+  if (value >= 50) return 'Good'
+  return 'Fair'
+}
+
+function getConditionTextColor(condition?: number) {
+  const value = condition ?? 0
+  if (value >= 80) return '#86efac'
+  if (value >= 65) return '#7dd3fc'
+  if (value >= 50) return '#fcd34d'
+  return '#fca5a5'
+}
+
+function getConditionBarBackground(condition?: number) {
+  const value = condition ?? 0
+  if (value >= 80) return 'linear-gradient(90deg, #22c55e, #10b981)'
+  if (value >= 65) return 'linear-gradient(90deg, #3b82f6, #06b6d4)'
+  if (value >= 50) return 'linear-gradient(90deg, #eab308, #f59e0b)'
+  return 'linear-gradient(90deg, #ef4444, #f97316)'
+}
+
+const filteredAndSortedHorses = computed(() => {
+  const normalizedSearch = searchTerm.value.trim().toLowerCase()
+
+  return [...props.horses]
+    .filter((horse) => {
+      if (!normalizedSearch) return true
+
+      return (
+        horse.name.toLowerCase().includes(normalizedSearch) ||
+        getColorName(horse.color || '').toLowerCase().includes(normalizedSearch) ||
+        getConditionLabel(horse.condition).toLowerCase().includes(normalizedSearch)
+      )
+    })
+    .sort((a, b) => {
+      if (!sortBy.value) return 0
+
+      if (sortBy.value === 'condition') {
+        const aValue = a.condition ?? 0
+        const bValue = b.condition ?? 0
+        return sortOrder.value === 'asc' ? aValue - bValue : bValue - aValue
+      }
+
+      const aValue =
+        sortBy.value === 'color'
+          ? getColorName(a.color || '').toLowerCase()
+          : a.name.toLowerCase()
+      const bValue =
+        sortBy.value === 'color'
+          ? getColorName(b.color || '').toLowerCase()
+          : b.name.toLowerCase()
+
+      if (aValue === bValue) return 0
+      if (sortOrder.value === 'asc') return aValue < bValue ? -1 : 1
+      return aValue > bValue ? -1 : 1
+    })
+})
 </script>
 
+<template>
+  <section class="roster-screen">
+    <div class="roster-screen__grid"></div>
+
+    <Motion
+      class="roster-screen__header"
+      :initial="{ opacity: 0, y: -20 }"
+      :animate="{ opacity: 1, y: 0 }"
+      :transition="{ duration: 0.5 }"
+    >
+      <div class="roster-screen__title-wrap">
+        <div class="roster-screen__title-badge">
+          <Trophy :size="24" />
+        </div>
+        <div>
+          <h2 class="roster-screen__title">Horse Roster</h2>
+          <p class="roster-screen__subtitle">
+            {{ filteredAndSortedHorses.length }} horses available
+          </p>
+        </div>
+      </div>
+
+      <label class="roster-screen__search">
+        <Search :size="18" class="roster-screen__search-icon" />
+        <input
+          v-model="searchTerm"
+          type="text"
+          placeholder="Search horses..."
+        />
+      </label>
+    </Motion>
+
+    <Motion
+      class="roster-screen__table-shell"
+      :initial="{ opacity: 0 }"
+      :animate="{ opacity: 1 }"
+      :transition="{ duration: 0.5, delay: 0.2 }"
+    >
+      <div class="roster-screen__table-wrap">
+        <table class="roster-table">
+          <thead>
+            <tr>
+              <th class="roster-table__index">#</th>
+              <th @click="handleSort('name')">
+                <span>Name</span>
+                <span class="roster-table__sort">
+                  <ChevronUp
+                    :size="14"
+                    :class="{ 'is-active': sortBy === 'name' && sortOrder === 'asc' }"
+                  />
+                  <ChevronDown
+                    :size="14"
+                    :class="{ 'is-active': sortBy === 'name' && sortOrder === 'desc' }"
+                  />
+                </span>
+              </th>
+              <th @click="handleSort('color')">
+                <span>Color</span>
+                <span class="roster-table__sort">
+                  <ChevronUp
+                    :size="14"
+                    :class="{ 'is-active': sortBy === 'color' && sortOrder === 'asc' }"
+                  />
+                  <ChevronDown
+                    :size="14"
+                    :class="{ 'is-active': sortBy === 'color' && sortOrder === 'desc' }"
+                  />
+                </span>
+              </th>
+              <th @click="handleSort('condition')">
+                <span>Condition</span>
+                <span class="roster-table__sort">
+                  <ChevronUp
+                    :size="14"
+                    :class="{ 'is-active': sortBy === 'condition' && sortOrder === 'asc' }"
+                  />
+                  <ChevronDown
+                    :size="14"
+                    :class="{ 'is-active': sortBy === 'condition' && sortOrder === 'desc' }"
+                  />
+                </span>
+              </th>
+            </tr>
+          </thead>
+
+          <tbody v-if="filteredAndSortedHorses.length">
+            <tr v-for="horse in filteredAndSortedHorses" :key="horse.id">
+              <td class="roster-table__index">{{ horse.id }}</td>
+              <td>
+                <div class="horse-cell">
+                  <div
+                    class="horse-cell__avatar"
+                    :style="{ '--horse-avatar-color': horse.color || '#9d9720' }"
+                  >
+                    🐴
+                  </div>
+                  <span class="horse-cell__name">{{ horse.name }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="color-cell">
+                  <span
+                    class="color-cell__swatch"
+                    :style="{ backgroundColor: horse.color || '#999999' }"
+                  ></span>
+                  <span>{{ getColorName(horse.color || '') }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="condition-cell">
+                  <div class="condition-cell__meta">
+                    <span>{{ getConditionLabel(horse.condition) }}</span>
+                    <span>{{ horse.condition ?? 0 }}%</span>
+                  </div>
+                  <div class="condition-cell__track">
+                    <div
+                      class="condition-cell__fill"
+                      :style="{
+                        width: `${horse.condition ?? 0}%`,
+                        background: getConditionBarBackground(horse.condition)
+                      }"
+                    ></div>
+                  </div>
+                  <span
+                    class="condition-cell__value"
+                    :style="{ color: getConditionTextColor(horse.condition) }"
+                  >
+                    {{ getConditionLabel(horse.condition) }}
+                  </span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+
+          <tbody v-else>
+            <tr>
+              <td colspan="4" class="roster-table__empty">No horses match your search.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </Motion>
+  </section>
+</template>
+
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
-
-/* ── Container ─────────────────────────────────────────── */
-.horses-list-container {
-  font-family: 'DM Sans', sans-serif;
-  border-radius: 18px;
+.roster-screen {
+  position: relative;
+  min-height: 100%;
   overflow: hidden;
-
-  /* Pure glass — no dark fill, just blur + faint white tint */
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(32px) saturate(180%) contrast(1.02);
-  -webkit-backdrop-filter: blur(32px) saturate(180%) contrast(1.02);
-
-  /* Wet edge — bright top, dim sides */
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-top: 1px solid rgba(255, 255, 255, 0.55);
-  border-left: 1px solid rgba(255, 255, 255, 0.22);
-
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.06),
-    inset 1px 0 0 rgba(255, 255, 255, 0.1),
-    0 24px 60px rgba(0, 0, 0, 0.25),
-    0 4px 16px rgba(0, 0, 0, 0.12);
+  padding: 12px 0 0;
 }
 
-/* ── Header ────────────────────────────────────────────── */
-.game-header {
+.roster-screen__grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.12;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.roster-screen__header {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 15px 18px;
-
-  /* Wet surface reflection — brighter at top, fades down */
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.18) 0%,
-    rgba(255, 255, 255, 0.04) 100%
-  );
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  position: relative;
+  gap: 18px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
-/* Specular streak across header top */
-.game-header::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 8%; right: 35%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
-}
-
-.header-left {
+.roster-screen__title-wrap {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
 }
 
-.header-icon {
-  font-size: 1.3rem;
-  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3));
-}
-
-.header-text h2 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  /* Dark text — readable on bright glass over light track bg */
-  color: rgba(10, 20, 10, 0.85);
-  line-height: 1;
-  text-shadow: 0 1px 0 rgba(255,255,255,0.4);
-}
-
-.subtitle {
-  margin: 3px 0 0;
-  font-family: 'DM Mono', monospace;
-  font-size: 0.63rem;
-  letter-spacing: 0.1em;
-  color: rgba(0, 0, 0, 0.35);
-}
-
-.header-badge {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-family: 'DM Mono', monospace;
-  font-size: 0.62rem;
-  letter-spacing: 0.1em;
-  color: rgba(20, 110, 40, 0.85);
-
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  border-top-color: rgba(255, 255, 255, 0.65);
-  border-radius: 20px;
-  padding: 4px 10px;
-  backdrop-filter: blur(8px);
-}
-
-.badge-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: rgba(30, 160, 60, 0.9);
-  animation: blink 2.8s ease-in-out infinite;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 0.9; }
-  50%       { opacity: 0.3; }
-}
-
-/* ── Row surfaces ──────────────────────────────────────── */
-:deep(tr:nth-child(even) td) {
-  background: rgba(255, 255, 255, 0.06);
-}
-
-:deep(tr:hover td) {
-  background: rgba(255, 255, 255, 0.14) !important;
-  transition: background 0.12s ease;
-}
-
-/* ── Horse cell ────────────────────────────────────────── */
-.horse-cell {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.horse-avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
+.roster-screen__title-badge {
+  width: 52px;
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  font-size: 0.84rem;
-
-  background:
-    linear-gradient(145deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.1) 100%),
-    color-mix(in srgb, var(--hc) 50%, white);
-
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-top-color: rgba(255, 255, 255, 0.7);
-
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.08),
-    0 3px 10px rgba(0, 0, 0, 0.15);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255, 217, 102, 0.24), rgba(187, 116, 40, 0.34));
+  color: #ffd966;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.16);
 }
 
-.horse-info {
+.roster-screen__title {
+  margin: 0;
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: 900;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.roster-screen__subtitle {
+  margin: 6px 0 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.9rem;
+}
+
+.roster-screen__search {
+  position: relative;
   display: flex;
-  flex-direction: column;
-  gap: 1px;
+  align-items: center;
 }
 
-.horse-name {
-  font-size: 0.87rem;
-  font-weight: 600;
-  color: rgba(10, 20, 10, 0.82);
-  letter-spacing: 0.02em;
-  line-height: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+.roster-screen__search input {
+  width: min(320px, 80vw);
+  padding: 12px 16px 12px 42px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  outline: none;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-.horse-tag {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.6rem;
-  color: rgba(0, 0, 0, 0.28);
+.roster-screen__search input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.roster-screen__search-icon {
+  position: absolute;
+  left: 14px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.roster-screen__table-shell {
+  position: relative;
+  z-index: 1;
+}
+
+.roster-screen__table-wrap {
+  overflow: auto;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(15, 25, 45, 0.7);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.roster-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+.roster-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 18px 20px;
+  background: rgba(10, 18, 33, 0.88);
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 800;
   letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-/* ── Color cell ────────────────────────────────────────── */
+.roster-table thead th:not(.roster-table__index) {
+  cursor: pointer;
+  user-select: none;
+}
+
+.roster-table thead th:not(.roster-table__index):hover {
+  color: #ffd966;
+}
+
+.roster-table thead th span:first-child {
+  display: inline-flex;
+  align-items: center;
+}
+
+.roster-table tbody td {
+  padding: 18px 20px;
+  color: rgba(255, 255, 255, 0.88);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.roster-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.roster-table__index {
+  width: 64px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.56);
+}
+
+.roster-table__sort {
+  display: inline-flex;
+  flex-direction: column;
+  vertical-align: middle;
+  margin-left: 8px;
+  line-height: 0.75;
+}
+
+.roster-table__sort :deep(svg) {
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.roster-table__sort :deep(.is-active) {
+  color: #ffd966;
+}
+
+.horse-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.horse-cell__avatar {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--horse-avatar-color) 74%, white),
+    color-mix(in srgb, var(--horse-avatar-color) 88%, black 12%)
+  );
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.18);
+  font-size: 1.1rem;
+}
+
+.horse-cell__name {
+  font-weight: 800;
+  color: #ffffff;
+}
+
 .color-cell {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
-.color-swatch {
-  width: 14px;
-  height: 14px;
-  border-radius: 4px;
+.color-cell__swatch {
+  width: 16px;
+  height: 16px;
   flex-shrink: 0;
-
-  background:
-    linear-gradient(135deg, rgba(255,255,255,0.5) 0%, transparent 55%),
-    var(--sc, #ccc);
-
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-top-color: rgba(255, 255, 255, 0.6);
-
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.5),
-    0 2px 5px rgba(0, 0, 0, 0.15);
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
 }
 
-.color-name {
-  font-size: 0.75rem;
-  font-weight: 400;
-  color: rgba(0, 0, 0, 0.4);
-  text-transform: capitalize;
-  letter-spacing: 0.02em;
-}
-
-/* ── Condition cell ────────────────────────────────────── */
 .condition-cell {
+  min-width: 220px;
+}
+
+.condition-cell__meta {
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-width: 120px;
-}
-
-.condition-track {
-  flex: 1;
-  height: 5px;
-  border-radius: 3px;
-  overflow: hidden;
-
-  background: rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-top-color: rgba(255, 255, 255, 0.5);
-
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.12);
-}
-
-.condition-fill {
-  height: 100%;
-  border-radius: 3px;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 70%),
-    var(--bc, #4ade80);
-  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
-}
-
-.condition-value {
-  font-family: 'DM Mono', monospace;
+  justify-content: space-between;
+  margin-bottom: 8px;
   font-size: 0.76rem;
-  font-weight: 500;
-  min-width: 34px;
-  text-align: right;
-  letter-spacing: 0.01em;
-  filter: brightness(0.75);
+  font-weight: 700;
 }
 
-.pct {
-  font-size: 0.57rem;
-  opacity: 0.6;
-  margin-left: 1px;
+.condition-cell__meta span:first-child {
+  color: #ffffff;
 }
 
-/* ── Default cell ──────────────────────────────────────── */
-.default-cell {
-  font-size: 0.83rem;
-  font-weight: 400;
-  color: rgba(0, 0, 0, 0.45);
+.condition-cell__meta span:last-child {
+  color: rgba(255, 255, 255, 0.6);
 }
 
-/* ── Responsive ────────────────────────────────────────── */
+.condition-cell__track {
+  width: 100%;
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.condition-cell__fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.6s ease;
+}
+
+.condition-cell__value {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.roster-table__empty {
+  padding: 36px 20px !important;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.58) !important;
+}
+
 @media (max-width: 768px) {
-  .game-header     { padding: 12px 14px; }
-  .horse-avatar    { width: 26px; height: 26px; }
-  .horse-name      { font-size: 0.82rem; }
-  .condition-track { height: 4px; }
-  .condition-value { font-size: 0.72rem; min-width: 28px; }
-  .header-text h2  { font-size: 0.92rem; }
+  .roster-screen__header {
+    align-items: stretch;
+  }
+
+  .roster-screen__search,
+  .roster-screen__search input {
+    width: 100%;
+  }
+
+  .roster-screen__title {
+    font-size: 1.55rem;
+  }
 }
 </style>
